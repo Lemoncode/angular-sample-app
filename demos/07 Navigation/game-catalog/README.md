@@ -35,7 +35,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 * Open bash from `src/app`
 
 ```bash
-ng generate component navbar
+ng g c shell/navbar --flat=true --skipTests=true --inlineStyle=true
 ```
 * Remove `navbar.component.css`
 * Remove `navbar.component.spec.ts`
@@ -244,7 +244,7 @@ export const appRoutes: Routes = [
 ```diff
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-+import { GameStockService } from '../../services/gameStock.service';
++import { GameStockService } from '../../services/game-stock.service';
 
 @Component({
   selector: 'app-game-sellers-details',
