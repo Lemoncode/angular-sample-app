@@ -189,9 +189,9 @@ export class AppModule { }
 ```diff
 <div class="well">
   <h4>{{seller.name}}</h4>
-  <span>Cantidad disponible: {{seller.amount}}</span>
-  <span>Precio unitario: {{seller.price | currency:'EUR':true}}</span>
-+  <i [class]="seller.amount | available" aria-hidden="true"></i>
+  <span>Available amount: {{seller.amount}}</span>
+  <span>Unit price: {{seller.price | currency:'EUR'}}</span>
++ <i [class]="seller.amount | available" aria-hidden="true"></i>
 </div>
 
 ```

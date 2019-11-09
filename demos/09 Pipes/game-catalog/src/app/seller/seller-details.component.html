@@ -2,4 +2,5 @@
   <h4>{{seller.name}}</h4>
   <span>Available amount: {{seller.amount}}</span>
   <span>Unit price: {{seller.price | currency:'EUR'}}</span>
+  <i [class]="seller.amount | available" aria-hidden="true"></i>
 </div>
