@@ -52,7 +52,7 @@ body {
 * Open `bash` in `src/app/seller`
 
 ```bash
-$ng generate component seller-details
+$ ng g c seller/seller-details --inlineStyle=true --skipTests=true --flat=true
 ```
 * Remove `*.css`
 * Remove `*.spec.ts`
@@ -113,15 +113,20 @@ export class SellerDetailsComponent {
 ```diff
 <div class="card card-block bg-faded">
   <h4>{{seller.name}}</h4>
-  <span>Cantidad disponible: {{seller.amount}}</span>
--  <span>Precio unitario: {{seller.price}}</span>
-+  <span>Precio unitario: {{seller.price | currency:'EUR'}}</span>
+  <span>Available amount: {{seller.amount}}</span>
+- <span>Unit price: {{seller.price}}</span>
++ <span>Unit price: {{seller.price | currency:'EUR'}}</span>
 </div>
 ```
 
 ### 5. Now we are going to create a custom pipe that will display a check icon if a game is available, and cross if not.
 
-* We create a new folder call `app/pipes`. Inside we can place now `available.pipe.ts`.
+
+* We create a new folder call `app/shared`. Inside we can place now `available.pipe.ts`.
+
+```bash
+$ ng g p shared/available --skipTests=true
+```
 
 ```typescript
 import { Pipe, PipeTransform } from '@angular/core';

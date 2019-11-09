@@ -11,6 +11,9 @@ import { GameListComponent } from './game/game-list.component';
 import { CreateSellerComponent } from './seller/create-seller.component';
 import { NavbarComponent } from './shell/navbar.component';
 import { NotFoundComponent } from './errors/not-found.component';
+import { SellerDetailsComponent } from './seller/seller-details.component';
+
+import { AvailablePipe } from './shared/available.pipe';
 
 import { GameStockService } from './services/game-stock.service';
 import { SellerCategoryService } from './services/seller-category.service';
@@ -28,7 +31,9 @@ import { appRoutes } from './app.routes';
     GameListComponent,
     CreateSellerComponent,
     NavbarComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    SellerDetailsComponent,
+    AvailablePipe
   ],
   imports: [
     BrowserModule,
