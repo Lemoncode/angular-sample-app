@@ -27,221 +27,656 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 
-## NOTE: In this demo we are going to filtering and sorting the displayed data on `game-sellers.componet.*`
-## Steps.
+## NOTE: In this demo we are going to load data by using a Web API that will be running on node.
 
-### 1. First we have to make some changes on `game-sellers.componet.*`
+## Steps to create the Web API
 
-```diff html
-<h2>Game Details</h2>
-<div class="row">
-  <div class="col-2">
-    <h3>Sellers</h3>
-  </div>
-  <div class="col-8">
--    <!-- TODO: Add options for filtering -->
-+      <div class="btn-group btn-group-sm">
-+        <button class="btn btn-default" [class.active]="sortBy==='asc'" (click)="sortBy='asc'">
-+          Precio mayor
-+        </button>
-+        <button class="btn btn-default" [class.active]="sortBy==='desc'" (click)="sortBy='desc'">
-+          Precio menor
-+        </button>
-+      </div>
-+      <div class="btn-group btn-group-sm">
-+        <button class="btn btn-default" [class.active]="filterBy==='all'" (click)="filterBy='all'">
-+          Todos
-+        </button>
-+        <button class="btn btn-default" [class.active]="filterBy==='available'" (click)="filterBy='available'">
-+          Disponibles
-+        </button>
-+      </div>
-  </div>
-  <div class="col-2">
-      <a (click)="toggleAddSeller()">Add seller</a>
-  </div>
-</div>
-<div class="row">
-  <div class="col" *ngIf="!addMode">
-    <h2>{{gameName}}</h2>
-    <div *ngFor="let seller of sellers">
-      <app-seller-details [seller]="seller"></app-seller-details>
-    </div>
-  </div>
-</div>
-<app-create-seller *ngIf="addMode"></app-create-seller>
+### A. Create a new folder call `game-catalog/server`
 
+### B. Create a new folder call `server/models`. Inside this folder, create the following files: 
+* `gameModel.js`
+```javascript
+const GAMES = [
+    {
+        name: 'Super Mario Bros',
+        dateRelease: '13 September 1985',
+        imageUrl: 'http://cdn02.nintendo-europe.com/media/images/10_share_images/games_15/virtual_console_nintendo_3ds_7/SI_3DSVC_SuperMarioBros_image1280w.jpg',
+        sellers: [
+            {
+                id: 1,
+                name: 'Old shop',
+                price: 95,
+                amount: 2,
+                isAvailable: true,
+            },
+            {
+                id: 2,
+                name: 'New shop',
+                price: 115,
+                amount: 1,
+                isAvailable: true,
+            },
+            {
+                id: 3,
+                name: 'Regular shop',
+                price: 135,
+                amount: 0,
+                isAvailable: false,
+            }
+        ]
+    },
+    {
+        name: 'Legend of Zelda',
+        dateRelease: '21 February 1986',
+        imageUrl: 'http://www.hobbyconsolas.com/sites/hobbyconsolas.com/public/styles/main_element/public/media/image/2013/06/227201-analisis-legend-zelda-oracle-ages/seasons.jpg?itok=A8pOGd_f',
+        sellers: [
+            {
+                id: 3,
+                name: 'Old shop',
+                price: 125,
+                amount: 0,
+                isAvailable: false,
+            },
+            {
+                id: 4,
+                name: 'New shop',
+                price: 145,
+                amount: 1,
+                isAvailable: true,
+            },
+        ]
+    },
+    {
+        name: 'Sonic',
+        dateRelease: '26 June 1981',
+        imageUrl: 'https://www-sonicthehedgehog-com-content.s3.amazonaws.com/test/Sonic_Mania_Block_3_video_1_2.jpg',
+    },
+];
 
-```
-```diff typescript
-...
-export class GameSellersComponent implements OnInit {
-  gameName: string;
-  sellers: ISeller[];
-  addMode = false;
-+  filterBy = 'all';
-+  sortBy = 'asc';
-  constructor(private route: ActivatedRoute, private gameStockService: GameStockService) { }
+const getGames = () => GAMES;
+const getGame = (name) => GAMES.find((game) => game.name === name);
+const addGame = (game) => {
+    const imageUrl = (game.imageUrl) ? game.imageUrl : 'https://c1.staticflickr.com/6/5447/18686626819_224c6414ce_m.jpg';
+    const gameWithImageUrlResolved = Object.assign({}, game, imageUrl);
+    GAMES.push(gameWithImageUrlResolved);
+};
+const getGameIndexByName = (name) => GAMES.findIndex((g) => g.name === name);
+const updateGame = (game) => {
+    const gameIndex = getGameIndexByName(game.name);
+    if (gameIndex > -1) {
+        GAMES[gameIndex] = game;
+    }
+};
+const deleteGame = (name) => {
+    const gameIndex = getGameIndexByName(name);
+    if (gameIndex > -1) {
+        GAMES.splice(gameIndex, 1);
+    }
+}
 
-  ...
+module.exports = {
+    getGames,
+    getGame,
+    addGame,
+    updateGame,
+    deleteGame
 }
 
 ```
+* `sellerCategoryModel.js`
+```javascript
+const SELLERCATEGORIES = [
+    {
+      id: 1,
+      name: 'National',
+      taxes: [
+        {
+          id: 1,
+          name: 'I.V.A.',
+          amount: 0.21,
+        },
+        {
+          id: 3,
+          name: 'exempt',
+          amount: 0,
+        }
+      ],
+    },
+    {
+      id: 2,
+      name: 'European',
+      taxes: [
+        {
+          id: 2,
+          name: 'european external tariff',
+          amount: 0.17,
+        },
+        {
+          id: 3,
+          name: 'exempt',
+          amount: 0,
+        }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Foreign',
+      taxes: [
+        {
+          id: 4,
+          name: 'foreign external tariff',
+          amount: 0.47,
+        },
+        {
+          id: 5,
+          name: 'special tariff',
+          amount: 0.26,
+        }
+      ]
+    }
+  ];
 
-### 2. Now we are going to create a new componente under `src/app/seller`, `seller-list.component.*`
+const getSellerCategories = () => SELLERCATEGORIES;
 
-* Open `bash` in `src/app/seller`
+module.exports = {
+    getSellerCategories
+}
+
+```
+* `userModel.js`
+```javascript
+const user = {
+    userName: 'jaisal',
+    isAuthenticated: false
+};
+
+const getLogged = (userClient) => {
+    user.isAuthenticated = userClient.userName === user.userName;
+    return user.isAuthenticated;
+};
+
+const isUserAuthenticated = () => {
+    return user.isAuthenticated;
+};
+
+const logout = () => {
+    user.isAuthenticated = false;
+    return user.isAuthenticated;
+};
+
+const updateUser = (userClient) => {
+    user.userName = userClient.userName;
+};
+
+const getUser = () => {
+    return user.userName;
+};
+
+module.exports = {
+    getLogged,
+    isUserAuthenticated,
+    logout,
+    updateUser,
+    getUser
+};
+
+```
+### C. Create a new folder `server/routes`. And place the following files:
+* `gameRoutes.js`
+```javascript
+const express = require('express'),
+    gameRouter = express.Router(),
+    Game = require('../models/gameModel');
+
+const routes = () => {
+    gameRouter.route('/')
+        .post((req, res) => {
+            const game = {
+                name: req.body.name,
+                dateRelease: req.body.dateRelease,
+                imageUrl: req.body.imageUrl
+            };
+            console.log(game);
+            Game.addGame(game);
+            res.status(201);
+            res.send(game);
+        })
+        .get((req, res) => {
+            res.json(Game.getGames());
+        });
+        // TODO: Use middleware to resolve game.
+        gameRouter.route('/:id')
+            .get((req, res) => {
+                const game = Game.getGame(req.params.id);
+                if (game) {
+                    res.json(game);
+                } else {
+                    res.status(404).send('no game found');
+                }
+            })
+            .put((req, res) => {
+                // NOTE: Any seller will be remove!!!
+                const game = {
+                    name: req.body.name,
+                    dateRelease: req.body.dateRelease,
+                    imageUrl: req.body.imageUrl
+                };
+                Game.updateGame(game);
+                res.json(game);
+            })
+            .delete((req, res) => {
+                Game.deleteGame(req.params.id);
+                res.status(204).send('remove');
+            });
+    
+    return gameRouter; 
+};
+
+module.exports = routes;
+
+```
+* `sellerCategoryRoutes.js`
+```javascript
+const express = require('express'),
+    sellerCategoryRouter = express.Router();
+    SellerCategory = require('../models/sellerCategoryModel');
+    
+const routes = () => {
+    sellerCategoryRouter.route('/')
+        .get((req, res) => {
+            res.json(SellerCategory.getSellerCategories());
+        });
+    
+    return sellerCategoryRouter;
+};
+
+module.exports = routes;
+
+```
+* `userRoutes.js`
+```javascript
+const express = require('express'),
+    userRouter = express.Router();
+    User = require('../models/userModel');
+
+const routes = () => {
+    userRouter.route('/')
+        .get((req, res) => {
+            if (User.isUserAuthenticated()) {
+                res.json(User.geUser());
+            } else {
+                res.status(403).send('forbidden');
+            }
+        })
+        .post((req, res) => {
+            res.json(User.getLogged(req.body));
+        })
+        .put((req, res) => {
+            if (User.isUserAuthenticated()) {
+                User.updateUser(req.body);
+                res.status(201).send('ok');
+            } else {
+                res.status(403).send('forbidden');
+            }
+        });
+    
+    userRouter.route('/logout')
+        .post((req, res) => {
+            res.json(User.logout());
+        });
+    
+    userRouter.route('/authenticated')
+        .get((req, res) => {
+            res.json(User.isUserAuthenticated());
+        });
+
+    return userRouter;
+}
+
+module.exports = routes;
+
+```
+### D. Create a new file `server/index.js`
+```javascript
+const express = require('express'),
+      app = express(),
+      bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+
+const gameRouter = require('./routes/gameRoutes');
+const sellerCategoryRouter = require('./routes/sellerCategoryRoutes');
+const userRouter = require('./routes/userRoutes');
+
+app.use('/api/games', gameRouter());
+app.use('/api/sellercategories', sellerCategoryRouter());
+app.use('/api/users', userRouter());
+
+const port = 3000;
+app.listen(port);
+console.log(`Server running on: ${port}`);
+
+```
+### E. Create a new configuration file for proxy. `game-catalog/proxy.conf.json`
+
+```json
+{
+    "/api": {
+        "target": "http://localhost:3000",
+        "secure": false
+    }
+}
+
+```
+### F. Install server dependencies
 
 ```bash
-$ ng g c seller/seller-list --skipTests=true --inlineStyle=true --flat=true
-```
-* Remove `*.css`
-* Remove `*.spec.ts` 
-
-```html
-<div *ngFor="let seller of sellers">
-  <app-seller-details [seller]="seller"></app-seller-details>
-</div>
+$npm install express body-parser --save
 ```
 
-```typescript
-import { Component, Input } from '@angular/core';
-import { ISeller } from '../../models/seller.model';
+### G. For last let's modify the `package.json`, to get the server started.
 
-@Component({
-  selector: 'app-seller-list',
-  templateUrl: './seller-list.component.html'
-})
-export class SellerListComponent {
-  @Input() sellers: ISeller[];
+```diff
+{
+  "name": "game-catalog",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "ng": "ng",
+-   "start": "ng serve",
++   "start": "node ./server/index.js | ng serve --proxy-config proxy.conf.json",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  ....
 }
 
 ```
-### 3. Now we have to update `game-sellers.component.html`, in order to use this new component.
 
-```diff html
-<h2>Game Details</h2>
-<div class="row">
-  <div class="col-2">
-    <h3>Sellers</h3>
-  </div>
-  <div class="col-8">
-    <div class="btn-group btn-group-sm">
-      <button class="btn btn-default" [class.active]="sortBy==='asc'" (click)="sortBy='asc'">
-        Precio mayor
-      </button>
-      <button class="btn btn-default" [class.active]="sortBy==='desc'" (click)="sortBy='desc'">
-        Precio menor
-      </button>
-    </div>
-    <div class="btn-group btn-group-sm">
-      <button class="btn btn-default" [class.active]="filterBy==='all'" (click)="filterByBy='all'">
-        Todos
-      </button>
-      <button class="btn btn-default" [class.active]="filterBy==='available'" (click)="filterBy='available'">
-        Disponibles
-      </button>
-    </div>
-  </div>
-  <div class="col-2">
-    <a (click)="toggleAddSeller()">Add seller</a>
-  </div>
-</div>
-<div class="row">
-  <div class="col" *ngIf="!addMode">
-    <h2>{{gameName}}</h2>
-+    <app-seller-list [sellers]="sellers"></app-seller-list>
--    <div *ngFor="let seller of sellers">
--      <app-seller-details [seller]="seller"></app-seller-details>
--    </div>
-  </div>
-</div>
-<app-create-seller *ngIf="addMode"></app-create-seller>
+## Steps.
 
+* https://angular.io/guide/http
 
-```
-* Check that everything it's working.
+### 1. Before you can use the `HttpClient`, you need to install the `HttpClientModule` which provides it. This can be done in your application module, and is only necessary once. 
 
-### 4. Now we have to pass the params to `seller-list` so it can be filter and sorting by them.
-
-`game-sellers.component.html`
-```diff html
-....
-<div *ngIf="!addMode">
-  <h2>{{gameName}}</h2>
--  <app-seller-list [sellers]="sellers"></app-seller-list>
-+ <app-seller-list [sortBy]="sortBy" [filterBy]="filterBy" [sellers]="sellers"></app-seller-list>
-</div>
-<app-create-seller *ngIf="addMode"></app-create-seller>
+```diff app.module.ts
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+ 
+// Import HttpClientModule from @angular/common/http
++import {HttpClientModule} from '@angular/common/http';
+ 
+@NgModule({
+  imports: [
+    BrowserModule,
+    // Include it under 'imports' in your application module
+    // after BrowserModule.
++    HttpClientModule,
+  ],
+})
 ....
 ```
 
-`seller-list.component.ts`
-```diff typescript
--import { Component, Input } from '@angular/core';
-+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ISeller } from '../../models/seller.model';
 
-@Component({
-  selector: 'app-seller-list',
-  templateUrl: './seller-list.component.html'
-})
-+export class SellerListComponent implements OnChanges {
--export class SellerListComponent {
-  @Input() sellers: ISeller[];
-+  @Input() filterBy: string;
-+  @Input() sortBy: string;
-+  visibleSellers: ISeller[];
-+
-+  ngOnChanges(changes: SimpleChanges): void {
+### 2. Open `services/sellerCategory.service.ts`
+
+```diff 
+import { Injectable } from '@angular/core';
+import { ISellerCategory } from '../models/sellerCategory.model';
++import { HttpClient } from '@angular/common/http';
++import { Observable } from 'rxjs/Observable';
+
+-const SELLERCATEGORIES: ISellerCategory[] = [
+-  {
+-    id: 1,
+-    name: 'National',
+-    taxes: [
+-      {
+-        id: 1,
+-        name: 'I.V.A.',
+-        amount: 0.21,
+-      },
+-      {
+-        id: 3,
+-        name: 'exempt',
+-        amount: 0,
+-      }
+-    ],
+-  },
+-  {
+-    id: 2,
+-    name: 'European',
+-    taxes: [
+-      {
+-        id: 2,
+-        name: 'european external tariff',
+-        amount: 0.17,
+-      },
+-      {
+-        id: 3,
+-        name: 'exempt',
+-        amount: 0,
+-      }
+-    ]
+-  },
+-  {
+-    id: 3,
+-    name: 'Foreign',
+-    taxes: [
+-      {
+-        id: 4,
+-        name: 'foreign external tariff',
+-        amount: 0.47,
+-      },
+-      {
+-        id: 5,
+-        name: 'special tariff',
+-        amount: 0.26,
+-      }
+-    ]
+-  }
+-];
+
++@Injectable()
+export class SellerCategoryService {
++  constructor(private http: HttpClient) {}
++ 
+-  getSellerCategories() {
++  getSellerCategories(): Observable<ISellerCategory[]> {
+-    return SELLERCATEGORIES;
++    return this.http.get<ISellerCategory[]>('/api/sellercategories');
 +  }
 }
 ```
-### 5. Now let's introduce the changes on `seller-list.component.*`
 
-```diff html
--<div *ngFor="let seller of sellers">
-+<div *ngFor="let seller of visibleSellers">
-  <app-seller-details [seller]="seller"></app-seller-details>
-</div>
-```
-```diff typescript
-import { Component, Input, OnChanges } from '@angular/core';
-import { ISeller } from '../../models/seller.model';
+* Now it's time to run build. What happens is that the build it`s broken right now.
+
+### 3. Let's fix this issue to get build running again. Open `app/seller/create-seller/create-seller.component.ts`
+
+```diff
+import { Component, OnInit } from '@angular/core';
+import { SellerCategoryService } from '../../services/sellerCategory.service';
+import { ISellerCategory } from '../../models/sellerCategory.model';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
++import { Observable } from 'rxjs/Observable';
+
+const nameValid = (control: FormControl): { [key: string]: any } => {
+  const firstLetter = control.value.toString()[0];
+  return (!!firstLetter && (firstLetter !== firstLetter.toUpperCase())) ?
+    { 'nameValid' : 'invalid name' } : null;
+};
+
 
 @Component({
-  selector: 'app-game-sellers',
-  templateUrl: './game-sellers.component.html',
+  selector: 'app-create-seller',
+  templateUrl: './create-seller.component.html',
+  styles: [`
+        em { color: #E05C65; padding-left: 10px; }
+        .error input, .error select, .error textarea { background-color:#E3C3C5; }
+        .error :: -webkit-input-placeholder { color: #999; }
+        .error :: -moz-placeholder { color: #999; }
+        .error :: -ms-input-placeholder { color: #999; }
+    `]
 })
-export class GameSellersComponent implements OnChanges {
-  @Input() sellers: ISeller[];
-  @Input() gameName: string;
-  @Input() filterBy: string;
-  @Input() sortBy: string;
-  visibleSellers: ISeller[];
+export class CreateSellerComponent implements OnInit {
+  categoryLookupCollection: Array<any>; // TODO: Create Lookup entity.
+  taxesByCategory: Array<any>;
+  taxLookupCollection: Array<any> = []; // TODO: Create Lookup entity.
+  newSellerForm: FormGroup;
+  category: FormControl;
+  tax: FormControl;
+  name: FormControl;
 
-+  ngOnChanges(changes: SimpleChanges): void {
-+    if (changes['filterBy']) {
-+      this.visibleSellers = this.filterSellers(changes['filterBy'].currentValue);
-+    }
-+    if (changes['sortBy']) {
-+      this.sortSellers(changes['sortBy'].currentValue);
-+    }
-+  }
-+
-+  private filterSellers = (filter: string): ISeller[] => (
-+    this.sellers.filter(
-+      (s) => filter === 'all' || s.amount > 0
-+    )
-+  );
-+
-+  private sortSellers = (sortBy: string): void => {
-+    this.visibleSellers.sort(this.sortSellersReaction[sortBy]);
-+  };
-+
-+  private sortSellersReaction = {
-+    ['asc']: (current: ISeller, after: ISeller) => after.price - current.price,
-+    ['desc']: (current: ISeller, after: ISeller) => current.price - after.price
-+  };
+  constructor(private sellerCategoryService: SellerCategoryService) { }
+
+  onChangeCategory(value) {
+    this.taxLookupCollection = this.taxesByCategory
+      .filter((tax) => tax.categoryId === +value)
+      .map(
+        (t) => ({
+          id: t.id,
+          name: t.name
+        })
+      );
+    this.tax.enable();
+  }
+
+  saveSeller(formValues) {
+    console.log(formValues);
+  }
+
+  ngOnInit() {
+    this.category = new FormControl('', Validators.required);
+    this.tax = new FormControl('', Validators.required);
+    this.name = new FormControl('', [ Validators.required, nameValid]);
+    this.newSellerForm = new FormGroup({
+      category: this.category,
+      tax: this.tax,
+      name: this.name
+    });
+    this.tax.disable();
+-    const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
++    this.sellerCategoryService.getSellerCategories()
++      .subscribe((categories) => {
+        this.categoryLookupCollection = categories
+          .map(
+            (category) => ({
+              id: category.id,
+              name: category.name,
+            })
+          );
+
+        let taxesByCategory: Array<any> = [];
+        categories.forEach((category) => {
+          const taxesByCategoryTemp = category.taxes.map((tax) => ({
+            categoryId: category.id,
+            id: tax.id,
+            name: tax.name
+          }));
+          taxesByCategory = taxesByCategory.concat(taxesByCategoryTemp);
+        });
+        this.taxesByCategory = taxesByCategory;
++        }, (err) => console.log(err));
+  }
 }
+
+```
+* Now let's make a new build.
+
+###  4. For last we are going to do a little refactor changing to a private method, where we resolve the lookup entites
+
+```diff
+import { Component, OnInit } from '@angular/core';
+import { SellerCategoryService } from '../../services/sellerCategory.service';
+import { ISellerCategory } from '../../models/sellerCategory.model';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
+
+const nameValid = (control: FormControl): { [key: string]: any } => {
+  const firstLetter = control.value.toString()[0];
+  return (!!firstLetter && (firstLetter !== firstLetter.toUpperCase())) ?
+    { 'nameValid' : 'invalid name' } : null;
+};
+
+
+@Component({
+  selector: 'app-create-seller',
+  templateUrl: './create-seller.component.html',
+  styles: [`
+        em { color: #E05C65; padding-left: 10px; }
+        .error input, .error select, .error textarea { background-color:#E3C3C5; }
+        .error :: -webkit-input-placeholder { color: #999; }
+        .error :: -moz-placeholder { color: #999; }
+        .error :: -ms-input-placeholder { color: #999; }
+    `]
+})
+export class CreateSellerComponent implements OnInit {
+  categoryLookupCollection: Array<any>; // TODO: Create Lookup entity.
+  taxesByCategory: Array<any>;
+  taxLookupCollection: Array<any> = []; // TODO: Create Lookup entity.
+  newSellerForm: FormGroup;
+  category: FormControl;
+  tax: FormControl;
+  name: FormControl;
+
+  constructor(private sellerCategoryService: SellerCategoryService) { }
+
+  onChangeCategory(value) {
+    this.taxLookupCollection = this.taxesByCategory
+      .filter((tax) => tax.categoryId === +value)
+      .map(
+        (t) => ({
+          id: t.id,
+          name: t.name
+        })
+      );
+    this.tax.enable();
+  }
+
+  saveSeller(formValues) {
+    console.log(formValues);
+  }
+
+  ngOnInit() {
+    this.category = new FormControl('', Validators.required);
+    this.tax = new FormControl('', Validators.required);
+    this.name = new FormControl('', [ Validators.required, nameValid]);
+    this.newSellerForm = new FormGroup({
+      category: this.category,
+      tax: this.tax,
+      name: this.name
+    });
+    this.tax.disable();
++    this.resolveLookupEntities();
+  }
+
++  private resolveLookupEntities() {
++    this.sellerCategoryService.getSellerCategories()
++    .subscribe((categories) => {
++      this.categoryLookupCollection = categories
++      .map(
++        (category) => ({
++          id: category.id,
++          name: category.name,
++        })
++      );
++
++    let taxesByCategory: Array<any> = [];
++    categories.forEach((category) => {
++      const taxesByCategoryTemp = category.taxes.map((tax) => ({
++        categoryId: category.id,
++        id: tax.id,
++        name: tax.name
++      }));
++      taxesByCategory = taxesByCategory.concat(taxesByCategoryTemp);
++    });
++    this.taxesByCategory = taxesByCategory;
++    }, (err) => console.log(err));
++  }
+}
+
 ```
