@@ -23,6 +23,7 @@ import { CHECK_DIRTY_TOKEN, checkDirtyState } from './services/check-dirty.servi
 
 import { appRoutes } from './app.routes';
 import { SellerListComponent } from './seller/seller-list.component';
+import { CollapsibleCardComponent } from './shared/collapsible-card.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { SellerListComponent } from './seller/seller-list.component';
     NotFoundComponent,
     SellerDetailsComponent,
     AvailablePipe,
-    SellerListComponent
+    SellerListComponent,
+    CollapsibleCardComponent
   ],
   imports: [
     BrowserModule,
