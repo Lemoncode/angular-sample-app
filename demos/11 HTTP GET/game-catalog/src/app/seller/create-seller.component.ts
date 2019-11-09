@@ -45,9 +45,12 @@ export class CreateSellerComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
-    const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
-    this.populateCategoryLookupCollection(categories);
-    this.populateTaxesByCategory(categories);
+    // const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
+    this.sellerCategoryService.getSellerCategories()
+      .subscribe((categories) => {
+        this.populateCategoryLookupCollection(categories);
+        this.populateTaxesByCategory(categories);
+      }, (err) => console.log(err));
   }
 
   private initializeForm() {
