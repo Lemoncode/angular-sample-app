@@ -27,564 +27,342 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 
-## NOTE: In this demo we are going to load data by using a Web API that will be running on node.
-
-## Steps to create the Web API
-
-### A. Create a new folder call `game-catalog/server`
-
-### B. Create a new folder call `server/models`. Inside this folder, create the following files: 
-* `gameModel.js`
-```javascript
-const GAMES = [
-    {
-        name: 'Super Mario Bros',
-        dateRelease: '13 September 1985',
-        imageUrl: 'http://cdn02.nintendo-europe.com/media/images/10_share_images/games_15/virtual_console_nintendo_3ds_7/SI_3DSVC_SuperMarioBros_image1280w.jpg',
-        sellers: [
-            {
-                id: 1,
-                name: 'Old shop',
-                price: 95,
-                amount: 2,
-                isAvailable: true,
-            },
-            {
-                id: 2,
-                name: 'New shop',
-                price: 115,
-                amount: 1,
-                isAvailable: true,
-            },
-            {
-                id: 3,
-                name: 'Regular shop',
-                price: 135,
-                amount: 0,
-                isAvailable: false,
-            }
-        ]
-    },
-    {
-        name: 'Legend of Zelda',
-        dateRelease: '21 February 1986',
-        imageUrl: 'http://www.hobbyconsolas.com/sites/hobbyconsolas.com/public/styles/main_element/public/media/image/2013/06/227201-analisis-legend-zelda-oracle-ages/seasons.jpg?itok=A8pOGd_f',
-        sellers: [
-            {
-                id: 3,
-                name: 'Old shop',
-                price: 125,
-                amount: 0,
-                isAvailable: false,
-            },
-            {
-                id: 4,
-                name: 'New shop',
-                price: 145,
-                amount: 1,
-                isAvailable: true,
-            },
-        ]
-    },
-    {
-        name: 'Sonic',
-        dateRelease: '26 June 1981',
-        imageUrl: 'https://www-sonicthehedgehog-com-content.s3.amazonaws.com/test/Sonic_Mania_Block_3_video_1_2.jpg',
-    },
-];
-
-const getGames = () => GAMES;
-const getGame = (name) => GAMES.find((game) => game.name === name);
-const addGame = (game) => {
-    const imageUrl = (game.imageUrl) ? game.imageUrl : 'https://c1.staticflickr.com/6/5447/18686626819_224c6414ce_m.jpg';
-    const gameWithImageUrlResolved = Object.assign({}, game, imageUrl);
-    GAMES.push(gameWithImageUrlResolved);
-};
-const getGameIndexByName = (name) => GAMES.findIndex((g) => g.name === name);
-const updateGame = (game) => {
-    const gameIndex = getGameIndexByName(game.name);
-    if (gameIndex > -1) {
-        GAMES[gameIndex] = game;
-    }
-};
-const deleteGame = (name) => {
-    const gameIndex = getGameIndexByName(name);
-    if (gameIndex > -1) {
-        GAMES.splice(gameIndex, 1);
-    }
-}
-
-module.exports = {
-    getGames,
-    getGame,
-    addGame,
-    updateGame,
-    deleteGame
-}
-
-```
-* `sellerCategoryModel.js`
-```javascript
-const SELLERCATEGORIES = [
-    {
-      id: 1,
-      name: 'National',
-      taxes: [
-        {
-          id: 1,
-          name: 'I.V.A.',
-          amount: 0.21,
-        },
-        {
-          id: 3,
-          name: 'exempt',
-          amount: 0,
-        }
-      ],
-    },
-    {
-      id: 2,
-      name: 'European',
-      taxes: [
-        {
-          id: 2,
-          name: 'european external tariff',
-          amount: 0.17,
-        },
-        {
-          id: 3,
-          name: 'exempt',
-          amount: 0,
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Foreign',
-      taxes: [
-        {
-          id: 4,
-          name: 'foreign external tariff',
-          amount: 0.47,
-        },
-        {
-          id: 5,
-          name: 'special tariff',
-          amount: 0.26,
-        }
-      ]
-    }
-  ];
-
-const getSellerCategories = () => SELLERCATEGORIES;
-
-module.exports = {
-    getSellerCategories
-}
-
-```
-* `userModel.js`
-```javascript
-const user = {
-    userName: 'jaisal',
-    isAuthenticated: false
-};
-
-const getLogged = (userClient) => {
-    user.isAuthenticated = userClient.userName === user.userName;
-    return user.isAuthenticated;
-};
-
-const isUserAuthenticated = () => {
-    return user.isAuthenticated;
-};
-
-const logout = () => {
-    user.isAuthenticated = false;
-    return user.isAuthenticated;
-};
-
-const updateUser = (userClient) => {
-    user.userName = userClient.userName;
-};
-
-const getUser = () => {
-    return user.userName;
-};
-
-module.exports = {
-    getLogged,
-    isUserAuthenticated,
-    logout,
-    updateUser,
-    getUser
-};
-
-```
-### C. Create a new folder `server/routes`. And place the following files:
-* `gameRoutes.js`
-```javascript
-const express = require('express'),
-    gameRouter = express.Router(),
-    Game = require('../models/gameModel');
-
-const routes = () => {
-    gameRouter.route('/')
-        .post((req, res) => {
-            const game = {
-                name: req.body.name,
-                dateRelease: req.body.dateRelease,
-                imageUrl: req.body.imageUrl
-            };
-            console.log(game);
-            Game.addGame(game);
-            res.status(201);
-            res.send(game);
-        })
-        .get((req, res) => {
-            res.json(Game.getGames());
-        });
-        // TODO: Use middleware to resolve game.
-        gameRouter.route('/:id')
-            .get((req, res) => {
-                const game = Game.getGame(req.params.id);
-                if (game) {
-                    res.json(game);
-                } else {
-                    res.status(404).send('no game found');
-                }
-            })
-            .put((req, res) => {
-                // NOTE: Any seller will be remove!!!
-                const game = {
-                    name: req.body.name,
-                    dateRelease: req.body.dateRelease,
-                    imageUrl: req.body.imageUrl
-                };
-                Game.updateGame(game);
-                res.json(game);
-            })
-            .delete((req, res) => {
-                Game.deleteGame(req.params.id);
-                res.status(204).send('remove');
-            });
-    
-    return gameRouter; 
-};
-
-module.exports = routes;
-
-```
-* `sellerCategoryRoutes.js`
-```javascript
-const express = require('express'),
-    sellerCategoryRouter = express.Router();
-    SellerCategory = require('../models/sellerCategoryModel');
-    
-const routes = () => {
-    sellerCategoryRouter.route('/')
-        .get((req, res) => {
-            res.json(SellerCategory.getSellerCategories());
-        });
-    
-    return sellerCategoryRouter;
-};
-
-module.exports = routes;
-
-```
-* `userRoutes.js`
-```javascript
-const express = require('express'),
-    userRouter = express.Router();
-    User = require('../models/userModel');
-
-const routes = () => {
-    userRouter.route('/')
-        .get((req, res) => {
-            if (User.isUserAuthenticated()) {
-                res.json(User.geUser());
-            } else {
-                res.status(403).send('forbidden');
-            }
-        })
-        .post((req, res) => {
-            res.json(User.getLogged(req.body));
-        })
-        .put((req, res) => {
-            if (User.isUserAuthenticated()) {
-                User.updateUser(req.body);
-                res.status(201).send('ok');
-            } else {
-                res.status(403).send('forbidden');
-            }
-        });
-    
-    userRouter.route('/logout')
-        .post((req, res) => {
-            res.json(User.logout());
-        });
-    
-    userRouter.route('/authenticated')
-        .get((req, res) => {
-            res.json(User.isUserAuthenticated());
-        });
-
-    return userRouter;
-}
-
-module.exports = routes;
-
-```
-### D. Create a new file `server/index.js`
-```javascript
-const express = require('express'),
-      app = express(),
-      bodyParser = require('body-parser');
-
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-
-
-const gameRouter = require('./routes/gameRoutes');
-const sellerCategoryRouter = require('./routes/sellerCategoryRoutes');
-const userRouter = require('./routes/userRoutes');
-
-app.use('/api/games', gameRouter());
-app.use('/api/sellercategories', sellerCategoryRouter());
-app.use('/api/users', userRouter());
-
-const port = 3000;
-app.listen(port);
-console.log(`Server running on: ${port}`);
-
-```
-### E. Create a new configuration file for proxy. `game-catalog/proxy.conf.json`
-
-```json
-{
-    "/api": {
-        "target": "http://localhost:3000",
-        "secure": false
-    }
-}
-
-```
-### F. Install server dependencies
-
-```bash
-$npm install express body-parser --save
-```
-
-### G. For last let's modify the `package.json`, to get the server started.
-
-```diff
-{
-  "name": "game-catalog",
-  "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {
-    "ng": "ng",
--   "start": "ng serve",
-+   "start": "node ./server/index.js | ng serve --proxy-config proxy.conf.json",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
-  },
-  ....
-}
-
-```
-
+## NOTE: In this demo we are going to use POST and PUT operations.
 ## Steps.
 
-* https://angular.io/guide/http
+### 1. Start by refactor `gameStock.service.ts` to grab customers from our Web API.
 
-### 1. Before you can use the `HttpClient`, you need to install the `HttpClientModule` which provides it. This can be done in your application module, and is only necessary once. 
+* Remove mock data
 
-```diff app.module.ts
-import {NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
- 
-// Import HttpClientModule from @angular/common/http
-+import {HttpClientModule} from '@angular/common/http';
- 
-@NgModule({
-  imports: [
-    BrowserModule,
-    // Include it under 'imports' in your application module
-    // after BrowserModule.
-+    HttpClientModule,
-  ],
-})
-....
-```
-
-
-### 2. Open `services/sellerCategory.service.ts`
-
-```diff 
+```typescript
 import { Injectable } from '@angular/core';
-import { ISellerCategory } from '../models/sellerCategory.model';
-+import { HttpClient } from '@angular/common/http';
-+import { Observable } from 'rxjs/Observable';
+import { Game } from '../models/game.model';
+import { ISeller } from '../models/seller.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
 
--const SELLERCATEGORIES: ISellerCategory[] = [
--  {
--    id: 1,
--    name: 'National',
--    taxes: [
--      {
--        id: 1,
--        name: 'I.V.A.',
--        amount: 0.21,
--      },
--      {
--        id: 3,
--        name: 'exempt',
--        amount: 0,
--      }
--    ],
--  },
--  {
--    id: 2,
--    name: 'European',
--    taxes: [
--      {
--        id: 2,
--        name: 'european external tariff',
--        amount: 0.17,
--      },
--      {
--        id: 3,
--        name: 'exempt',
--        amount: 0,
--      }
--    ]
--  },
--  {
--    id: 3,
--    name: 'Foreign',
--    taxes: [
--      {
--        id: 4,
--        name: 'foreign external tariff',
--        amount: 0.47,
--      },
--      {
--        id: 5,
--        name: 'special tariff',
--        amount: 0.26,
--      }
--    ]
--  }
--];
+@Injectable()
+export class GameStockService {
+  constructor(private http: HttpClient) {}
+  getGames(): Observable<Game[]> {
+    return this.http.get<Game[]>('/api/games/');
+  }
 
-+@Injectable()
-export class SellerCategoryService {
-+  constructor(private http: HttpClient) {}
-+ 
--  getSellerCategories() {
-+  getSellerCategories(): Observable<ISellerCategory[]> {
--    return SELLERCATEGORIES;
-+    return this.http.get<ISellerCategory[]>('/api/sellercategories');
-+  }
+  getGame(name: string): Observable<Game> {
+    return this.http.get<Game>(`/api/games/${name}`);
+  }
+  // https://github.com/ReactiveX/rxjs/blob/master/doc/lettable-operators.md
+  getGameSellers(name: string): Observable<ISeller[]> {
+    return this.getGame(name)
+      .pipe(
+        map(g => g.sellers)
+      );
+  }
+
+  addGame(game: Game): void {
+    // GAMES.push(game);
+  }
 }
-```
 
-* Now it's time to run build. What happens is that the build it`s broken right now.
+``` 
+* It's time to run a build `ng build`.
+* Now we are going to have a lot or errors, due to typings. Let's solve this problem.
 
-### 3. Let's fix this issue to get build running again. Open `app/seller/create-seller/create-seller.component.ts`
+### 2. Let's start by solving the problems on `app/game/games-list.component.ts`
 
 ```diff
 import { Component, OnInit } from '@angular/core';
-import { SellerCategoryService } from '../services/seller-category.service';
-import { ISellerCategory } from '../models/seller-category.model';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-
-const nameValid = (control: FormControl): {[key: string]: any} => {
-  const firstLetter = control.value.toString()[0];
-  return (!!firstLetter && (firstLetter !== firstLetter.toUpperCase())) ?
-    { 'nameValid': 'invalid name' } : null;
-};
+import { Game } from '../models/game.model';
+import { ISeller } from '../models/seller.model';
+import { GameStockService } from '../services/gameStock.service';
++import { Observable } from 'rxjs/Observable';
 
 @Component({
-  selector: 'app-create-seller',
-  templateUrl: './create-seller.component.html',
-  styles: [`
-    em { color: #E05C65; padding-left: 10px; }
-    .error input, .error select, .error textarea { background-color:#E3C3C5; }
-  `]
+  selector: 'app-games-list',
+  templateUrl: './games-list.component.html'
 })
-export class CreateSellerComponent implements OnInit {
-  categoryLookupCollection: Array<any>;
-  taxesByCategory: Array<any>;
-  taxLookupCollection: Array<any>;
-  newSellerForm: FormGroup;
-  category: FormControl;
-  tax: FormControl;
-  name: FormControl;
+export class GamesListComponent implements OnInit {
+  title = 'User Interactions Demo';
+  games: Game[];
+  selectedGameInfo: string;
+  sellers: ISeller[];
 
-  constructor(private sellerCategoryService: SellerCategoryService) { }
-
-  onChangeCategory(value) {
-    if (value) {
-      const { taxes } = this.taxesByCategory.find((tc) => tc.categoryId === +value);
-      this.taxLookupCollection = taxes.map((t) => ({ id: t.id, name: t.name }));
-      this.tax.enable();
-    } else {
-      this.tax.disable();
-    }
-    this.tax.setValue('');
+  constructor(private gameStockService: GameStockService) {
   }
 
-  saveSeller(formValues) {
-    console.log(formValues);
+  gameChangeHandler($event: any) {
+-    const sellers = this.gameStockService.getGameSellers($event);
++    this.gameStockService.getGameSellers($event)
++      .subscribe((sellers) => this.sellers = (sellers && sellers.length > 0) ? sellers : []);
+-    const selectedGame = this.gameStockService.getGame($event);
+-    this.selectedGameInfo = `${selectedGame.name}, Age:${selectedGame.getYearsFromRelease()}`;
+
+-    this.sellers = (sellers && sellers.length > 0) ? sellers : [];
++    this.gameStockService.getGame($event)
++      .subscribe(
++        (selectedGame) => this.selectedGameInfo = `${selectedGame.name}, Age:${selectedGame.getYearsFromRelease()}`
++      );
+  }
+
+  createGameEventHandler($event: any) {
+    const game = this.mapper($event);
+    this.gameStockService.addGame(game);
+    this.loadGames();
+  }
+
+  private mapper(formValues: any): Game {
+    return new Game(formValues.name, formValues.daterelease, formValues.imageurl);
   }
 
   ngOnInit() {
-    this.initializeForm();
--   const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
--   this.populateCategoryLookupCollection(categories);
--   this.populateTaxesByCategory(categories);
-+   this.sellerCategoryService.getSellerCategories()
-+     .subscribe((categories) => {
-+       this.populateCategoryLookupCollection(categories);
-+       this.populateTaxesByCategory(categories);
-+     }, (err) => console.log(err));
+    this.loadGames();
+  }
+
+  private loadGames() {
+-    this.games = this.gameStockService.getGames();
++    this.gameStockService.getGames()
++      .subscribe((games) => this.games = games);
+  }
+}
+
+```
+
+### 3. Now with this fixed, let's fix the issues on `app/game/game-sellers/game-sellers.component.ts`
+
+```diff
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { GameStockService } from '../../services/gameStock.service';
+import { ISeller } from '../../models/seller.model';
++import { Observable } from 'rxjs/Observable';
+
+@Component({
+  selector: 'app-game-sellers-details',
+  templateUrl: './game-sellers-details.component.html'
+})
+export class GameSellersDetailsComponent implements OnInit {
+  gameName: string;
+  sellers: ISeller[];
+  addMode = false;
+  filterBy = 'all';
+  sortBy = 'asc';
+  constructor(private route: ActivatedRoute, private gameStockService: GameStockService) { }
+
+  toggleAddSeller() {
+    this.addMode = !this.addMode;
+  }
+
+  ngOnInit() {
+-    const game = this.gameStockService.getGame(this.route.snapshot.params['id']);
+-    this.gameName = game.name;
+-    this.sellers = game.sellers;
++    this.gameStockService.getGame(this.route.snapshot.params['id'])
++      .subscribe((game) => {
++        this.gameName = game.name;
++        this.sellers = game.sellers;
++      });
+  }
+}
+
+```
+* Now it's time to check that the build still runing and the app it's working.
+* Oh, oh, there is a problem because or game on server it's not exactly the same as the game on client, let's fix this.
+
+### 4. Now open `app/services/gameStock.service.ts`, and let's make some modifications to make this work.
+
+```diff
+import { Injectable } from '@angular/core';
+import { Game } from '../models/game.model';
+import { ISeller } from '../models/seller.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+@Injectable()
+export class GameStockService {
+  constructor(private http: HttpClient) { }
+
++ mapGame = (serverGame: any) => {
++   return (serverGame.sellers && serverGame.sellers.length) ?
++     new Game(
++       serverGame.name,
++       serverGame.dateRelease.toString(),
++       serverGame.imageUrl,
++       serverGame.sellers
++     ) :
++     new Game(
++       serverGame.name,
++       serverGame.dateRelease.toString(),
++       serverGame.imageUrl,
++     );
++ };
++
++ mapGames = (serverGames: any[]) => {
++   return serverGames.map((sg) => this.mapGame(sg));
 + }
-
-  private initializeForm() {
-    this.category = new FormControl('', Validators.required);
-    this.tax = new FormControl('', Validators.required);
-    this.name = new FormControl('', [Validators.required, nameValid]);
-    this.newSellerForm = new FormGroup({
-      category: this.category,
-      tax: this.tax,
-      name: this.name
-    });
-    this.tax.disable();
++
+  getGames(): Observable<Game[]> {
+-   return this.http.get<Game[]>('/api/games/');
++   return this.http.get<Game[]>('/api/games/')
++     .pipe(
++       map(this.mapGames)
++     );
   }
 
-  private populateCategoryLookupCollection(categories: ISellerCategory[]): void {
-    this.categoryLookupCollection = categories.map(
-      (category) => ({
-        id: category.id,
-        name: category.name
-      })
-    );
+  getGame(name: string): Observable<Game> {
+-   return this.http.get<Game>(`/api/games/${name}`);
++   return this.http.get<Game>(`/api/games/${name}`)
++     .pipe(
++       map(this.mapGame),
++     );
   }
 
-  private populateTaxesByCategory(categories: ISellerCategory[]): void {
-    this.taxesByCategory = categories.map((sc) => ({
-      categoryId: sc.id,
-      taxes: [...sc.taxes]
-    }));
+  getGameSellers(name: string): Observable<ISeller[]> {
+    return this.getGame(name)
+      .pipe(
+        map(g => g.sellers)
+      );
   }
+
+  addGame(game: Game): void {
+    // games.push(game);
+  }
+}
+
+```
+
+### 5. Since we retrieve the data from a service, when the component `seller-list.component.*` it's initialize, the sellers are not already return to fix this, we have to make a change on this component.
+
+```diff seller-list.component.ts
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ISeller } from '../../models/seller.model';
+
+@Component({
+  selector: 'app-seller-list',
+  templateUrl: './seller-list.component.html'
+})
+export class SellerListComponent implements OnChanges {
+  @Input() sellers: ISeller[];
+  @Input() filterBy: string;
+  @Input() sortBy: string;
+  visibleSellers: ISeller[];
+
+  ngOnChanges(changes: SimpleChanges): void {
++    if (changes['sellers']) {
++      this.visibleSellers = this.sellers;
++    }
+-    if (changes['filterBy']) {
++    if (changes['filterBy'] && this.sellers) {
+      this.visibleSellers = this.filterSellers(changes['filterBy'].currentValue);
+    }
+-    if (changes['sortBy']) {
++    if (changes['sortBy'] && this.sellers) {
+      this.sortSellers(changes['sortBy'].currentValue);
+    }
+  }
+
+  private filterSellers = (filter: string): ISeller[] => (
+    this.sellers.filter(
+      (s) => filter === 'all' || s.amount > 0
+    )
+  );
+
+  private sortSellers = (sortBy: string): void => {
+    this.visibleSellers.sort(this.sortSellersReaction[sortBy]);
+  }
+
+  private sortSellersReaction = {
+    ['asc']: (current: ISeller, after: ISeller) => after.price - current.price,
+    ['desc']: (current: ISeller, after: ISeller) => current.price - after.price
+  };
 }
 
 
 ```
-* Now let's make a new build.
 
+### 6. Now for last we are going to add a new `game` on server. Open `app/services/game-stock.service.ts`
+
+```diff
+import { Injectable } from '@angular/core';
+import { Game } from '../models/game.model';
+import { ISeller } from '../models/seller.model';
+-import { HttpClient } from '@angular/common/http';
++import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
+
+@Injectable()
+export class GameStockService {
+  constructor(private http: HttpClient) { }
+
+  mapGame = (serverGame: any) => {
+    return (serverGame.sellers && serverGame.sellers.length) ?
+      new Game(
+        serverGame.name,
+        serverGame.dateRelease.toString(),
+        serverGame.imageUrl,
+        serverGame.sellers
+      ) :
+      new Game(
+        serverGame.name,
+        serverGame.dateRelease.toString(),
+        serverGame.imageUrl,
+      );
+  };
+
+  mapGames = (serverGames: any[]) => {
+    return serverGames.map((sg) => this.mapGame(sg));
+  };
+
+  getGames(): Observable<Game[]> {
+    return this.http.get<Game[]>('/api/games/')
+      .pipe(
+        map(this.mapGames)
+      );
+  }
+
+  getGame(name: string): Observable<Game> {
+    return this.http.get<Game>(`/api/games/${name}`)
+      .pipe(
+        map(this.mapGame),
+      );
+  }
+
+  getGameSellers(name: string): Observable<ISeller[]> {
+    return this.getGame(name)
+      .pipe(
+        map(g => g.sellers)
+      );
+  }
+
+-  addGame(game: Game): void {
++  addGame(game: Game): Observable<Game> {
++    const httpOptions = {
++      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
++    };
++
++    return this.http.post<Game>(
++      'http://localhost:8000/api/games/',
++       game,
++       httpOptions
++    );
++  }
+}
+
+```
+
+### 7. And subscribe on `create-game.component.ts`. 
+
+```diff
+....
+createGame(formValues: any) {
+    this.isDirty = false;
+    const game = this.mapper(formValues);
++    this.gameStockService.addGame(game)
++      .subscribe((_) => {
++        this.router.navigate(['/games']);
++      });
+  }
+....
+```

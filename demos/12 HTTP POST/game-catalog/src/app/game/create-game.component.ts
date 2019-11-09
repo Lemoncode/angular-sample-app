@@ -21,8 +21,10 @@ export class CreateGameComponent {
   createGame(formValues: any) {
     this.isDirty = false;
     const game = this.mapper(formValues);
-    this.gameStockService.addGame(game);
-    this.router.navigate(['/games']);
+    this.gameStockService.addGame(game)
+      .subscribe((_) => {
+        this.router.navigate(['/games']);
+      });
   }
 
   private mapper(formValues: any): Game {

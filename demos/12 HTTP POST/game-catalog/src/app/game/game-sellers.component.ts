@@ -25,8 +25,10 @@ export class GameSellersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const game = this.gameStockService.getGame(this.route.snapshot.params['id']);
-    this.gameName = game.name;
-    this.sellers = game.sellers;
+    this.gameStockService.getGame(this.route.snapshot.params['id'])
+      .subscribe((game) => {
+        this.gameName = game.name;
+        this.sellers = game.sellers;
+      });
   }
 }

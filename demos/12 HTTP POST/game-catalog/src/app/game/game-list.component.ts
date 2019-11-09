@@ -12,18 +12,24 @@ export class GameListComponent implements OnInit {
   games: Game[];
   selectedGameInfo: string;
   sellers: ISeller[];
-  
-  constructor(private gameStockService: GameStockService) {}
+
+  constructor(private gameStockService: GameStockService) { }
 
   gameChangeHandler($event) {
     console.log($event);
-    const sellers = this.gameStockService.getGameSellers($event);
-    const selectedGame = this.gameStockService.getGame($event);
-    this.selectedGameInfo = `${selectedGame.name}. Age:${selectedGame.getYearsFromRelease()}`;
-    this.sellers = (sellers && sellers.length) ? sellers : [];
+    this.gameStockService.getGameSellers($event)
+      .subscribe((sellers) => {
+        this.sellers = (sellers && sellers.length) ? sellers : [];
+      });
+
+    this.gameStockService.getGame($event)
+      .subscribe((selectedGame) => {
+        this.selectedGameInfo = `${selectedGame.name}. Age:${selectedGame.getYearsFromRelease()}`;
+      });
   }
 
   ngOnInit(): void {
-    this.games = this.gameStockService.getGames();
+    this.gameStockService.getGames()
+      .subscribe((games) => this.games = games);
   }
 }
