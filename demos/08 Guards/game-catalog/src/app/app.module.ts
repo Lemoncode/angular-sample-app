@@ -5,15 +5,19 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { GameSummaryComponent } from './game/game-summary.component';
-import { GameStockService } from './services/game-stock.service';
 import { GameSellersComponent } from './game/game-sellers.component';
 import { CreateGameComponent } from './game/create-game.component';
 import { GameListComponent } from './game/game-list.component';
+import { CreateSellerComponent } from './seller/create-seller.component';
+import { NavbarComponent } from './shell/navbar.component';
+import { NotFoundComponent } from './errors/not-found.component';
+
+import { GameStockService } from './services/game-stock.service';
+import { SellerCategoryService } from './services/seller-category.service';
+import { GameRouterActivatorService } from './services/game-router-activator.service';
+import { CHECK_DIRTY_TOKEN, checkDirtyState } from './services/check-dirty.service';
 
 import { appRoutes } from './app.routes';
-import { CreateSellerComponent } from './seller/create-seller.component';
-import { SellerCategoryService } from './services/seller-category.service';
-import { NavbarComponent } from './shell/navbar.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +27,8 @@ import { NavbarComponent } from './shell/navbar.component';
     CreateGameComponent,
     GameListComponent,
     CreateSellerComponent,
-    NavbarComponent
+    NavbarComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -33,7 +38,12 @@ import { NavbarComponent } from './shell/navbar.component';
   ],
   providers: [
     GameStockService,
-    SellerCategoryService
+    SellerCategoryService,
+    GameRouterActivatorService,
+    {
+      provide: CHECK_DIRTY_TOKEN,
+      useValue: checkDirtyState,
+    }
   ],
   bootstrap: [AppComponent]
 })

@@ -60,5 +60,6 @@
     <span (mouseenter)="mouseoverLogin=true" (mouseleave)="mouseoverLogin=false">
       <button type="submit" [disabled]="createGameForm.invalid" class="btn btn-primary">Create</button>
     </span>
+    <button type="reset" class="btn btn-default" (click)="cancel()">Cancel</button>
   </form>
 </div>

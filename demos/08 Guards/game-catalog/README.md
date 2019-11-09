@@ -220,17 +220,17 @@ export class CreateGameComponent {
 </div>
 ```
 
-### 7. We are going to avoid that user does not navigate away from CreateCustomerComponent without confirm. Create `checkDirty.service.ts` and place it in `app/services`
+### 7. We are going to avoid that user does not navigate away from CreateCustomerComponent without confirm. Create `check-dirty.service.ts` and place it in `app/services`
 
 ```typescript
 import { InjectionToken } from '@angular/core';
 import { CreateGameComponent } from '../game/create-game/create-game.component';
 
-export let CHECKDIRTY_TOKEN = new InjectionToken('checkDirty');
+export let CHECK_DIRTY_TOKEN = new InjectionToken('checkDirty');
 
 export function checkDirtyState(component: CreateGameComponent) {
   if (component.isDirty) {
-    return window.confirm('You do not saved, do yo really want to cancel?')
+    return window.confirm('Changes without saving!!')
   }
   return true;
 }
@@ -257,7 +257,7 @@ import { Error404Component } from './errors/404.component';
 import { GameStockService } from './services/gameStock.service';
 import { SellerCategoryService } from './services/sellerCategory.service';
 import { GameRouterActivatorService } from './services/game-router-activator.service';
-+import { CHECKDIRTY_TOKEN, checkDirtyState } from './services/checkDirty.service';
++import { CHECK_DIRTY_TOKEN, checkDirtyState } from './services/check-dirty.service';
 
 import { appRoutes } from './app.routes';
 
@@ -286,7 +286,7 @@ import { appRoutes } from './app.routes';
     SellerCategoryService,
     GameRouterActivatorService,
 +    {
-+      provide: CHECKDIRTY_TOKEN,
++      provide: CHECK_DIRTY_TOKEN,
 +      useValue: checkDirtyState
 +    }
   ],
@@ -305,11 +305,11 @@ import { CreateSellerComponent } from './game/seller-details/create-seller.compo
 import { GameSellersDetailsComponent } from './game/seller-details/game-sellers-details.component';
 import { Error404Component } from './errors/404.component';
 import { GameRouterActivatorService } from './services/game-router-activator.service';
-+import { CHECKDIRTY_TOKEN } from './services/checkDirty.service';
++import { CHECK_DIRTY_TOKEN } from './services/check-dirty.service';
 
 export const appRoutes: Routes = [
 -  { path: 'games/new', component: CreateGameComponent },
-+  { path: 'games/new', component: CreateGameComponent, canDeactivate: [CHECKDIRTY_TOKEN] },
++  { path: 'games/new', component: CreateGameComponent, canDeactivate: [CHECK_DIRTY_TOKEN] },
   { path: 'games', component: GamesListComponent },
   { path: 'games/:id', component: GameSellersDetailsComponent, canActivate: [GameRouterActivatorService] },
   { path: 'games/seller/new', component: CreateSellerComponent },
