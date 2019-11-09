@@ -1,0 +1,5 @@
+<div class="container">
+  <app-game-summary *ngFor="let game of games" (gameChange)="gameChangeHandler($event)" [game]="game">
+  </app-game-summary>
+  <app-game-sellers [gameName]="selectedGameInfo" [sellers]="sellers"></app-game-sellers>
+</div>
