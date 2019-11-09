@@ -27,183 +27,504 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 
-## NOTE: In this demo we are going to create the necessary infrastructure for routing.
-
-1. We create `app.routes` that will contain the routes for the main module.
-2. Then we are going to extract the `create-game.component.*` to its own route and we are going to create a  `games-list.component.*`, that will contains the games (our `app.component.*` right now).
-3. In order to get routing working we have to introduce a new directive `router-outlet`. This directive is responsible for inject the content dependeing on the route.
-
+## NOTE: In this demo we are going to create a reactive form.
 ## Steps.
 
-### 1. Creating `games-list.component.*`. Place it in game folder.
+### 1. We start by creating a new folder `src/app/seller`
 
-* Open `bash` in `src/app/game`.
+### 2. We create a new component `create-seller.component.*`
+
+* Open `bash` in `src/app/seller`
 
 ```bash
-$ ng g c game/game-list --flat=true --skipTests=true --inlineStyle=true
+$ ng g c seller/create-seller --flat=true --skipTests=true --inlineStyle=true 
 ```
-* Remove `game-list.component.css`
-* Remove `game-list.component.spec.ts`
+* Remove `create-seller.component.css`
+* Remove `create-seller.component.spec.ts`
 
-* It's the same html as `app.component.hml`, but without the form, and the button that hides content.
 ```html
-<div class="container">
-  <h1>
-    {{title}}
-  </h1>
-  <div class="games-container">
-    <div *ngFor="let game of games">
-        <app-game-summary (gameChange)="gameChangeHandler($event)" [game]=game></app-game-summary>
-    </div>
+<div class="row">
+  <div class="col">
+    <h3>Create Seller</h3>
   </div>
-  <app-game-sellers [gameName]="selectedGameInfo" [sellers]="sellers"></app-game-sellers>
+</div>
+<div class="row">
+  <div class="col-6">
+    <form>
+      <div class="form-group">
+        <label for="sellercategory">Category</label>
+        <select class="form-control">
+          <option value="">select category...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="tax">Tax</label>
+        <select class="form-control">
+          <option value="">select tax...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="remarks">Remarks:</label>
+        <textarea rows=3 class="form-control" placeholder="remarks..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" class="btn btn-default">Cancel</button>
+    </form>
+  </div>
 </div>
 
 ```
-* It's the same as `app.component.ts`, but without the property `show` and the method `createGameEventHandler`, changing references route and removing styles.
+
 ```typescript
 import { Component, OnInit } from '@angular/core';
-import { GameStockService } from '../../services/gameStock.service';
-import { Game } from '../../models/game.model';
-import { ISeller } from '../../models/seller.model';
 
 @Component({
-  selector: 'app-game-list',
-  templateUrl: './game-list.component.html',
+  selector: 'app-create-seller',
+  templateUrl: './create-seller.component.html',
+  styles:[`
+        em { color: #E05C65; padding-left: 10px; }
+        .error input, .error select, .error textarea { background-color:#E3C3C5; }
+        .error :: -webkit-input-placeholder { color: #999; }
+        .error :: -moz-placeholder { color: #999; }
+        .error :: -ms-input-placeholder { color: #999; }
+    `]
 })
-export class GameListComponent implements OnInit {
-  games: Game[];
-  selectedGameInfo: string;
-  sellers: ISeller[];
+export class CreateSellerComponent implements OnInit {
 
-  constructor(private gameStockService: GameStockService) {}
+  constructor() { }
 
-  gameChangeHandler($event: any) {
-    const sellers = this.gameStockService.getGameSellers($event);
-    const selectedGame = this.gameStockService.getGame($event);
-    this.selectedGameInfo = `${selectedGame.name}, Age:${selectedGame.getYearsFromRelease()}`;
-    this.sellers = (sellers && sellers.length > 0) ? sellers : [];
-  }
-
-  private mapper(formValues: any): Game {
-    return new Game(formValues.name, formValues.daterelease, formValues.imageurl);
-  }
-
-  ngOnInit(): void {
-    this.loadGames();
-  }
-
-  private loadGames(): void {
-    this.games = this.gameStockService.getGames();
+  ngOnInit() {
   }
 
 }
 
 ```
-
-### 2. Now we are going to create a new file that will host our routes for the `app.module`, lets create this file at the same level as `app.module`, `/src/app/app.routes.ts`
-
-```typescript
-import { Routes } from '@angular/router';
-
-export const appRoutes: Routes = [
-
-];
-```
-
-### 3. Now we can create a new route for this new kid.
+### 3. We create a new route for component, in `app.routes.ts`
 
 ```diff
-import { Routes } from '@angular/router';
-+import { GameListComponent } from './game/game-list/game-list.component';
-
-export const appRoutes: Routes = [
-+  { path: 'games', component: GameListComponent }
-];
-```
-
-### 5. Lets create as well the default route
-
-```diff
-import { Routes } from '@angular/router';
-import { GamesListComponent } from './game/games-list/games-list.component';
++import { CreateSellerComponent } from './seller/create-seller/create-seller.component';
 
 export const appRoutes: Routes = [
   { path: 'games', component: GamesListComponent },
-+  { path: '', redirectTo: '/games', pathMatch: 'full' }
+  { path: 'games/new', component: CreateGameComponent },
++  { path: 'seller/new', component: CreateSellerComponent },
+  { path: '', redirectTo: '/games', pathMatch: 'full' }
 ];
-
 ```
-### 4. Ok now we have to declare our routes in the app.module.ts
+* Time to try to navigate to it.
+
+### 4. We are going to create a reactive form, in order to get this working, we are going to register a new import in our module.
 
 ```diff
-....
-+import { RouterModule } from '@angular/router';
-
-import { GameStockService } from './services/gameStock.service';
-+import { appRoutes } from './app.routes';
-
-import { AppComponent } from './app.component';
-import { GameSummaryComponent } from './game/game-summary.component';
-import { GameSellersComponent } from './game/game-sellers/game-sellers.component';
-import { CreateGameComponent } from './game/create-game/create-game.component';
-import { GameListComponent } from './game/game-list/game-list.component';
+-import { FormsModule } from '@angular/forms';
++import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    GameSummaryComponent,
-    GameSellersComponent,
-    CreateGameComponent,
-    GameListComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule,
-+    RouterModule.forRoot(appRoutes)
-  ],
+    .....
+    imports: [
+        ....
++        ReactiveFormModules
+        ....
+    ]
+    ....
+})
+```
+
+### 5. We are going to do a rich form, we are going to introduce some new models
+```typescript tax.model
+export interface ITax {
+  id: number;
+  name: string;
+  amount: number;
+}
+```
+
+
+```typescript seller-category.model
+import { ITax } from './tax.model';
+
+export interface ISellerCategory {
+  id: number;
+  name: string;
+  taxes: Array<ITax>;
+}
+```
+### 6. No we are going to create a service that provides data related with `seller-category.model` and `tax.model`. In folder `services`, we create `seller-category.service.ts`
+
+```typescript
+import { Injectable } from '@angular/core';
+import { ISellerCategory } from '../models/seller-category.model';
+
+const sellerCategories: ISellerCategory[] = [
+  {
+    id: 1,
+    name: 'National',
+    taxes: [
+      {
+        id: 1,
+        name: 'I.V.A.',
+        amount: 0.21,
+      },
+      {
+        id: 3,
+        name: 'exempt',
+        amount: 0,
+      }
+    ],
+  },
+  {
+    id: 2,
+    name: 'European',
+    taxes: [
+      {
+        id: 2,
+        name: 'european external tariff',
+        amount: 0.17,
+      },
+      {
+        id: 3,
+        name: 'exempt',
+        amount: 0,
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: 'Foreign',
+    taxes: [
+      {
+        id: 4,
+        name: 'foreign external tariff',
+        amount: 0.47,
+      },
+      {
+        id: 5,
+        name: 'special tariff',
+        amount: 0.26,
+      }
+    ]
+  }
+];
+
+@Injectable()
+export class SellerCategoryService {
+  getSellerCategories() {
+    return SELLERCATEGORIES;
+  }
+}
+```
+
+### 7. Now we have to register our new service, in `app.module.ts`.
+
+```diff
+...
++import { SellerCategoryService } from './services/sellerCategory.service';
+
+import { appRoutes } from './app.routes';
+
+
+@NgModule({
+  ...
   providers: [
-    GameStockService
+    GameStockService,
++    SellerCategoryService
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
 
-
 ```
 
-### 5. Now we have to transform our app.component.html to host router-outlet directive.
+### 8. Let's load the seller categories options dinamically in our component `create-seller.component.*`. In order to do that we have to inject the service in our component.
 
 ```html
-<router-outlet></router-outlet>
+....
+<div class="form-group">
+    <label for="sellercategory">Category</label>
+    <select class="form-control">
+        <option value="">select category...</option>
+        <option [value]="categoryLookup.id" *ngFor="let categoryLookup of categoryLookupCollection">
+          {{ categoryLookup.name }}
+        </option>
+    </select>
+</div>
+....
 ```
 
-```typescript
-import { Component } from '@angular/core';
+```diff typescript
+import { Component, OnInit } from '@angular/core';
++import { SellerCategoryService } from '../../services/seller-category.service';
++import { ISellerCategory } from '../../models/seller-category.model';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-create-seller',
+    templateUrl: './create-seller.component.html',
+    styles:[`
+        em { color: #E05C65; padding-left: 10px; }
+        .error input, .error select, .error textarea { background-color:#E3C3C5; }
+        .error :: -webkit-input-placeholder { color: #999; }
+        .error :: -moz-placeholder { color: #999; }
+        .error :: -ms-input-placeholder { color: #999; }
+    `]
 })
-export class AppComponent {
+
+export class CreateSellerComponent implements OnInit {
++ categoryLookupCollection: Array<any>;
+
++ constructor(private sellerCategoryService: SellerCategoryService) { }
+
+  ngOnInit() {
++   const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
++   this.populateCategoryLookupCollection(categories);
+  }
+
++ private populateCategoryLookupCollection(categories: ISellerCategory[]): void {
++   this.categoryLookupCollection = categories.map(
++     (category) => ({
++       id: category.id,
++       name: category.name
++     })
++   );
++ }
 }
 ```
+* Test now that it's working.
 
-* Now it's time to check that our app runs and shows `games-list.component.*`
+### 9. Now lets register our form as reactive form, for that purpose, we have to use [formGroup]="newContractForm" on our form node.
 
-### 6. Lets create now a route for create-customer.component.ts
-
-``` diff
-import { Routes } from '@angular/router';
-import { GamesListComponent } from './game/game-list/games-list.component';
-+import { CreateGameComponent } from './game/create-game/create-game.component';
-
-export const appRoutes: Routes = [
-  { path: 'games', component: GamesListComponent },
-+  { path: 'games/new', component: CreateGameComponent },
-  { path: '', redirectTo: '/games', pathMatch: 'full' }
-];
+```diff html
+<div class="row">
+  <div class="col">
+    <h3>Create Seller</h3>
+  </div>
+</div>
+<div class="col-6">
+-  <form>
++  <form [formGroup]="newSellerForm" (ngSubmit)="saveSeller(newSellerForm.value)">
+      ....
+  </form>
+</div>
 ```
-* NOTE: The order on routes it's important!!!
+
+```diff typescript
+....
++saveSeller(formValues) {
++  console.log(formValues);
++}
+....
+```
+
+### 10. We are going to have two combo selections, one depending on the other one (for a particular category we can only choose its taxes). So we have to get notifed when the category value get changed.
+
+```diff html
+<div class="form-group">
+    <label for="sellercategory">Category</label>
+-    <select class="form-control">
++    <select formControlName="category" class="form-control" (change)="onChangeCategory($event.target.value)">
+        <option value="">select category...</option>
+        <option [value]="categoryLookup.id" *ngFor="let categoryLookup of categoryLookupCollection">
+          {{ categoryLookup.name }}
+        </option>
+    </select>
+</div>
+```
+
+### 11. In `create-seller.component.ts`, we have to register variables for form and the control (9, 10) `newSellerForm` and `category`.
+
+```diff typescript
+...
++import { FormGroup, FormControl, Validators } from '@angular/forms';
+...
+export class CreateSellerComponent implements OnInit {
+  categoryLookupCollection: Array<any>; // TODO: Create Lookup entity.
++  newSellerForm: FormGroup;
++  category: FormControl;
+
+  constructor(private sellerCategoryService: SellerCategoryService) { }
+
+  ngOnInit() {
++   this.initializeForm();
+    const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
+    this.populateCategoryLookupCollection(categories);
+  }
++
++ private initializeForm() {
++   this.category = new FormControl('', Validators.required);
++   this.newSellerForm = new FormGroup({
++     category: this.category,
++   });
++ }
++
+  private populateCategoryLookupCollection(categories: ISellerCategory[]): void {
+    this.categoryLookupCollection = categories.map(
+      (category) => ({
+        id: category.id,
+        name: category.name
+      })
+    );
+  }
+}
+``` 
+### 12. Register now the tax field, in `create-seller.component.html`.
+
+```diff html
+<div class="form-group">
+    <label for="tax">Tax</label>
+-    <select class="form-control">
++    <select formControlName="tax" class="form-control">
+        <option value="">select tax...</option>
++        <option [value]="taxLookup.id" *ngFor="let taxLookup of taxLookupCollection">
++          {{ taxLookup.name }}
++        </option>
+    </select>
+</div>
+```
+
+### 13. Modify `create-seller.component.ts`, to reflect tax changes and category changes.
+
+```diff typescript
+...
+export class CreateSellerComponent implements OnInit {
+  categoryLookupCollection: Array<any>; // TODO: Create Lookup entity.
++  taxesByCategory: Array<any>;
++  taxLookupCollection: Array<any> = []; // TODO: Create Lookup entity.
+  newSellerForm: FormGroup;
+  category: FormControl;
++ tax: FormControl;
+
+  constructor(private sellerCategoryService: SellerCategoryService) { }
++
++  onChangeCategory(value) {
++   if (value) {
++     const { taxes } = this.taxesByCategory.find((tc) => tc.categoryId === +value);
++     this.taxLookupCollection = taxes.map((t) => ({ id: t.id, name: t.name }));
++     this.tax.enable();
++   } else {
++     this.tax.disable();
++   }
++   this.tax.setValue('');
++  }
+
+  ngOnInit() {
+    this.initializeForm();
+    const categories: ISellerCategory[] = this.sellerCategoryService.getSellerCategories();
+    this.populateCategoryLookupCollection(categories);
++   this.populateTaxesByCategory(categories);
+  }
+
+  private initializeForm() {
+    this.category = new FormControl('', Validators.required);
++   this.tax = new FormControl('', Validators.required);
+    this.newSellerForm = new FormGroup({
+      category: this.category,
++     tax: this.tax,
+    });
++   this.tax.disable();
+  }
+
+  private populateCategoryLookupCollection(categories: ISellerCategory[]): void {
+    this.categoryLookupCollection = categories.map(
+      (category) => ({
+        id: category.id,
+        name: category.name
+      })
+    );
+  }
+
++ private populateTaxesByCategory(categories: ISellerCategory[]): void {
++   this.taxesByCategory = categories.map((sc) => ({
++     categoryId: sc.id,
++     taxes: [...sc.taxes]
++   }));
++ }
+}
+```
+* NOTE: tax field depends on category value, so this field will be disabled until the user selects a value on category. If user selects the empty category the tax field became disabled.
+
+### 14. Do not forgive to add our blocks on HTML `create-seller.component.html` to show errors.  
+
+```diff html
+....
+<div class="form-group">
+    <label for="sellercategory">Category</label>
++    <em *ngIf="category.invalid && category.dirty" [ngClass]="{ 'error': category.invalid && category.dirty }" class="float-right">
++      Required
++    </em>
+    <select formControlName="category" class="form-control" (change)="onChangeCategory($event.target.value)">
+        <option value="">select category...</option>
+        <option [value]="categoryLookup.id" *ngFor="let categoryLookup of categoryLookupCollection">
+          {{ categoryLookup.name }}
+        </option>
+    </select>
+</div>
+<div class="form-group">
+    <label for="tax">Tax</label>
++    <em *ngIf="tax.invalid && tax.dirty" [ngClass]="{ 'error': tax.invalid && tax.dirty }" class="float-right">
++      Required
++    </em>
+    <select formControlName="tax" class="form-control">
+        <option value="">select tax...</option>
+        <option [value]="taxLookup.id" *ngFor="let taxLookup of taxLookupCollection">
+          {{ taxLookup.name }}
+        </option>
+    </select>
+</div>
+```
+
+### 15. Lets add now custom validations to our reactive form, when we create a FormControl we can pass multiple validations to the the same field, using an array, or just pass a function with the custom validation that we have created
+
+* Add this HTML, to `create-seller.component.html`, place it before remarks.
+
+```diff html
+...
++<div class="form-group">
++  <label for="name">Name:</label>
++  <input type="text" formControlName="name" class="form-control">
++</div>
+....
+```
+* Add this code out of the class CreateSellerComponent on `create-seller.component.ts`
+```diff typescript
++const nameValid = (control: FormControl): { [key: string]: any } => {
++  const firstLetter = control.value.toString()[0];
++  return (!!firstLetter && (firstLetter !== firstLetter.toUpperCase())) ?
++    { 'nameValid' : 'invalid name' } : null;
++};
+```
+
+### 16. Now let's make work the custom validation created
+
+```diff html
+...
+<div class="form-group">
+  <label for="name">Name:</label>
++  <em *ngIf="name.invalid && name.dirty && name?.errors.required">Required</em>
++  <em *ngIf="name.invalid && name.dirty && name?.errors.nameValid">Not start by capital letter</em>
+  <input type="text" formControlName="name" class="form-control">
+</div>
+...
+```
+```diff typescript
+export class CreateSellerComponent implements OnInit {
+  categoryLookupCollection: Array<any>; // TODO: Create Lookup entity.
+  taxesByCategory: Array<any>;
+  taxLookupCollection: Array<any> = []; // TODO: Create Lookup entity.
+  newSellerForm: FormGroup;
+  category: FormControl;
+  tax: FormControl;
++ name: FormControl;
+
+......
+  private initializeForm() {
+    this.category = new FormControl('', Validators.required);
+    this.tax = new FormControl('', Validators.required);
++   this.name = new FormControl('', [Validators.required, nameValid]);
+    this.newSellerForm = new FormGroup({
+      category: this.category,
+      tax: this.tax,
++     name: this.name
+    });
+    this.tax.disable();
+  }
+```
+* TODO: Do the same with restricted words.

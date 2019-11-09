@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -11,6 +11,8 @@ import { CreateGameComponent } from './game/create-game.component';
 import { GameListComponent } from './game/game-list.component';
 
 import { appRoutes } from './app.routes';
+import { CreateSellerComponent } from './seller/create-seller.component';
+import { SellerCategoryService } from './services/seller-category.service';
 
 @NgModule({
   declarations: [
@@ -18,15 +20,18 @@ import { appRoutes } from './app.routes';
     GameSummaryComponent,
     GameSellersComponent,
     CreateGameComponent,
-    GameListComponent
+    GameListComponent,
+    CreateSellerComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule.forRoot(appRoutes)
   ],
   providers: [
-    GameStockService
+    GameStockService,
+    SellerCategoryService
   ],
   bootstrap: [AppComponent]
 })
