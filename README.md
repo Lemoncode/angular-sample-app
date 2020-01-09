@@ -23,4 +23,4 @@ npm install -g @angular/cli@8.3.17
 
 ## HTTP demos
 
-Demos related with HTTP work with a local node solution on __demo 11 HTTP GET__ we explain how to install and get the node server up and running. In order to make more simple its use, we have placed in the root folder the related file _under the server folder_.
+Demos related with HTTP, work with a local node solution. On __demo 11 HTTP GET__ we explain how to install and get the node server up and running. In order to make more simple its use, we have placed in the root folder,  _under the server folder_, the related files.

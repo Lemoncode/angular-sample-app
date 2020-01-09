@@ -37,8 +37,6 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ```bash
 ng g c shell/navbar --flat=true --skipTests=true --inlineStyle=true
 ```
-* Remove `navbar.component.css`
-* Remove `navbar.component.spec.ts`
 
 ```html
 <nav class="navbar navbar-toggleable-sm bg-light">
@@ -237,7 +235,7 @@ export const appRoutes: Routes = [
 +  }
 }
 ```
-* Check that works. Nothing is displyed, but the name appears on console.
+* Check that works. Nothing is displayed, but the name appears on console.
 
 ### 8. We want the sellers by game, so to achieve that we have to inject GameStockService 
 

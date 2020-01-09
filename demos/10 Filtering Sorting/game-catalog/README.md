@@ -95,8 +95,6 @@ export class GameSellersComponent implements OnInit {
 ```bash
 $ ng g c seller/seller-list --skipTests=true --inlineStyle=true --flat=true
 ```
-* Remove `*.css`
-* Remove `*.spec.ts` 
 
 ```html
 <div *ngFor="let seller of sellers">

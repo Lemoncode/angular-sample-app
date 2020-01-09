@@ -54,8 +54,6 @@ body {
 ```bash
 $ ng g c seller/seller-details --inlineStyle=true --skipTests=true --flat=true
 ```
-* Remove `*.css`
-* Remove `*.spec.ts`
 
 ```html
 <div class="card card-block bg-faded">
