@@ -1,15 +1,11 @@
-<h1>
-  {{title}}
-</h1>
+<h1>My application</h1>
+<h2>{{ title + "(" + title.length + ")" }})</h2>
 
-<div class="row">
-  <div class="col">
-    <label>Name:</label>
-    <span>{{game.name}}</span>
-  </div>
-  <div class="col">
-    <label>Name:</label>
-    <span>{{game.getYearsFromRelease()}}</span>
-  </div>
+<div>
+  <label>Name:</label>
+  <span>{{ game.name }}</span>
 </div>
-
+<div>
+  <label>Years from release:</label>
+  <span>{{ game.getYearsFromRelease() }}</span>
+</div>
