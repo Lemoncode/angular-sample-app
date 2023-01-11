@@ -99,6 +99,43 @@ _./src/app/app.component.html_
 + </div>
 ```
 
+¿Qué estamos haciendo aquí?
+
+- Tenemos un contenedor padre (un _div_), aquí definimos que vamos a iterar por la lista de juegos, y en cada iteración asignamos a la variable _game_ el elemento actual.
+- Dentro del contenedor padre tenemos 3 elementos hijos, que se van a repetir por cada elemento de la lista de juegos (la imagen y los dos parrafos).
+- En cada elemento hijo usamos la variable _game_ para acceder a las propiedades del elemento actual.
+- El elemento hijo se repite tantas veces como elementos haya en la lista de juegos.
+
+Bueno, ya tenemos esto andando en modo básico.
+
+Ahora imaginate que queremos darle estilo a cada juego de la lista, lo suyo sería mostrar cada juego dentro de un card, ¿Qué pasa si intentamos hacer esto en el propio app? Pues nos podemos encontrar con que nuestro componente App acabe con un sphagetthi de código HTML, y que sea muy difícil de mantener, también sería complicado poder reutilizar el componente card en otro sitio.
+
+¿Qué podemos hacer? Pues crear un componente nuevo, que se encargue de mostrar la ficha de un juego, y que lo podamos reutilizar en cualquier otro sitio.
+
+Si antes hicimos uso de nuestra primera directiva, ahora vamos crear nuestro primer componente, lo primero que vamos a hacer es pasar lo que tenemos tal cual a un componente nuevo.
+
+Si intentamos crear un componente de forma manual tendríamos que realizar varios pasos:
+
+- Crear un fichero .ts
+- Crear un fichero .html
+- Crear un fichero .css
+- Crear un fichero .spec.ts (si queremos meter pruebas)
+- Registrar el componente en el módulo principal.
+
+Esto además de ser un proceso pesado, es muy propenso a errores, por eso vamos a usar el CLI de Angular para crear el componente.
+
+- Vamos a crear un componente nuevo llamado _card-game_:
+
+```bash
+ng generate component card-game
+```
+
+Vamos a fijarnos en lo que se ha generado:
+
+Ficheros: _card-game.component.ts, card-game.component.html, card-game.component.css, card-game.component.spec.ts_
+
+Y en el fichero _app.module.ts_ se ha registrado el componente.
+
 # ¿Te apuntas a nuestro máster?
 
 Si te ha gustado este ejemplo y tienes ganas de aprender Front End
