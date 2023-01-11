@@ -28,7 +28,7 @@ export class Game {
   dateRelease: Date;
   imageUrl?: string;
 
-  constructor(name?: string, dateRelease?: string, imageUrl?: string) {
+  constructor(name: string, dateRelease: string = "", imageUrl?: string) {
     this.name = name;
     this.dateRelease = new Date(dateRelease);
     this.imageUrl = imageUrl;
@@ -113,4 +113,163 @@ Si ahora ejecutamos puedes ver que por pantalla aparece tanto _My Application_ c
 
 - Fíjate que ahora aparece el texto: _game-catalog (12)_, es decir muestra el título y se calcula la longitud del mismo.
 
+- ¿Y donde se usa mi componente? Vamos a tirar del hilo, si te fijas
+  en el decorador hemos definido un selector, que hemos llamado _app-root_, si buscamos este selector lo podemos encontrar en el fichero _index.html_
 
+**No copiar este código, es sólo de referencia**
+
+_./src/index.html_
+
+```html
+<body>
+  <app-root></app-root>
+</body>
+```
+
+- Vamos a darle un poco más de vidilla a este componente, vamos a definir una lista de juegos, y vamos a mostrar la ficha del primer juego del array.
+
+Para ello vamos a definir una variable miembro que va a ser privada (de momento) y tendrá un array de juegos, a su vez vamos a definir una variable miembro publica que va a tener el primer juego de la lista.
+
+De primeras definimos las variables miembro:
+
+```diff
+
+import { Component } from '@angular/core';
++ import { Game } from './models/game.model';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'game-catalog';
++  private games: Game[];
++  game: Game;
+}
+```
+
+> Podemos ver algunos avisos de TypeScript indicando que no hemos definido el tipo de la variable _games_ y _game_, esto es porque no hemos importado el modelo _Game_... en breve lo arreglamos.
+
+Y para inicializar la lista de juegos lo hacemos en el constructor:
+
+```diff
+export class AppComponent {
+  title = 'game-catalog';
+  private games: Game[];
+  game: Game;
+
++  constructor() {
++    this.games = [
++      new Game('Super Mario Bros', '13 September 1985'),
++      new Game('Legend of Zelda', '21 February 1986'),
++      new Game('Sonic', '26 June 1981'),
++    ];
++  }
+}
+```
+
+En este caso usamos el constructor (algo estándar de ES6 / TypeScript) porque queremos introducir unos valores hardcodeados, ya veremos más adelante que el constructor lo usaremos para inyectar servicios.
+
+A la hora de establecer datos iniciales, lo más habitual es hacerlo en el método _ngOnInit_ que es un método que se ejecuta cuando el componente se _inicializa_,
+vamos a usar esto para inicializar la variable _game_ con el primer juego de la lista.
+
+```diff
+export class AppComponent {
+  title = 'game-catalog';
+  private games: Game[];
+  game: Game;
+
+  constructor() {
+    this.games = [
+      new Game('Super Mario Bros', '13 September 1985'),
+      new Game('Legend of Zelda', '21 February 1986'),
+      new Game('Sonic', '26 June 1981'),
+    ];
+  }
+
++  ngOnInit(): void {
++    this.game = this.games[0];
++  }
+}
+```
+
+- Fíjate que a pesar se que _this.game_ lo inicializamos en el _ngOnInit_ nos sigue saliendo un error, esto porque _game_ no esta inicializado en el constructor, vamos a añadir un fix rápido para que no aparezca (lo inicializamos a un valor por defecto):
+
+```diff
+-  game: Game;
++    game: Game = new Game("");
+```
+
+> _ngOnInit_ está en el ciclo de vida de Angular, y se invoca cuando se inicializa un componente, es decir cuando se crea el componente y se inyectan las dependencias (se invoca justo después de que el constructor se haya llamado), angular provee de otro punto de entrada llamado _ngOnDestroy_ que se llama para limpiar recursos.
+
+Para comprobar que esto se ejecuta en el orden que hemos comentado, vamos a añadir dos _console.log_ en el constructor y en el _ngOnInit_:
+
+```diff
+  constructor() {
++    console.log('** Constructor called **');
+    this.games = [
+      new Game('Super Mario Bros', '13 September 1985'),
+      new Game('Legend of Zelda', '21 February 1986'),
+      new Game('Sonic', '26 June 1981'),
+    ];
+  }
+```
+
+```diff
+  ngOnInit(): void {
++    console.log('** ngOnInit called **');
+    this.game = this.games[0];
+  }
+```
+
+Ahora si ejecutamos y abrimos la consola del navegador podemos ver que se llama primero el constructor y después el onInit.
+
+Para ellos abrimos las herramientas de desarrollo del navegador y vamos a la pestaña _sources_ en la parte izquierda del arbol elegimos _webpack://_ y en la parte derecha buscamos el fichero _app.component.ts_ y ponemos un breakpoint en el constructor y en el _ngOnInit_, si refrescamos podemos ver como se para.
+
+También podemos depurar usando las tool del navegador.
+
+Bueno ya tenemos los datos, ¿Probamos a mostrarlos?
+
+> En este punto puedes parar el readme o video e intentarlo tu, sólo tendrías que usar interpolación y mostrar _game.name_ y _game.releaseDate_ ¿Te animas?.
+
+Vamos a mostrar esa información en el fichero _app.component.html_:
+
+```diff
+<h1>My application</h1>
+<h2>{{ title + "(" + title.length + ")" }})</h2>
++ <div>
++  <label>Name:</label>
++  <span>{{ game.name }}</span>
++ </div>
++ <div>
++  <label>Years from release:</label>
++  <span>{{ game.getYearsFromRelease() }}</span>
++ </div>
+```
+
+Ahora podemos ver como aparecen estos datos.
+
+Vamos ahora a darle un poco de estilo.
+
+Primero vamos a aplicar un cambio global (queremos que se use en toda la aplicación), vamos a indicar que se usa la fuente _arial_ en el fichero _styles.css_:
+
+_./app/styles.css_
+
+```diff
++ html, body {
++  font-family: arial;
++ }
+```
+
+Y ahora vamos a poner las etiquetas _name_ y _years_ en negrita, pero esta vez sólo queremos que ese estilo se aplique en este componente, para ello vamos a crear un fichero _app.component.css_:
+
+_./app/app.component.css_
+
+```css
+label {
+  font-weight: bold;
+}
+```
+
+Cuando aprendemos a crear componentes veremos como estos estilos se quedan estancos para el mismo.
