@@ -3,7 +3,7 @@ export class Game {
   dateRelease: Date;
   imageUrl?: string;
 
-  constructor(name: string, dateRelease: string = "", imageUrl? : string) {
+  constructor(name?: string, dateRelease?: string, imageUrl?: string ) {
     this.name = name;
     this.dateRelease = new Date(dateRelease);
     this.imageUrl = imageUrl;
@@ -14,6 +14,7 @@ export class Game {
     return this.convertToYears(new Date(milliseconds));
   }
 
-  private convertToYears = (date: Date): number =>
-    Math.abs(date.getUTCFullYear() - 1970);
+  private convertToYears = (date: Date): number => (
+    Math.abs(date.getUTCFullYear() - 1970)
+  );
 }

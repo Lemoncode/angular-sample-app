@@ -1,4 +1,6 @@
-html,
+@import '../node_modules/bootstrap/dist/css/bootstrap.css';
+
 body {
-  font-family: arial;
+  padding: 2em;
 }
+
