@@ -242,6 +242,41 @@ _./src/app/app.component.html_
 </div>
 ```
 
+Vale lo tenemos funcionando, pero hemos metido algo de "magia" de por medio, aunque alguno de estos puntos los veremos en detalles en los siguientes ejemplos, vamos a dar una introducción.
+
+Para poder aceptar un parámetro de entrada en un componente podemos usar dos decoradores:
+
+- @Input: para aceptar un parámetro de entrada
+- @Output: para emitir un evento (si por ejemplo queremos que el componente padre sepa que se ha pulsado un botón) (\* veremos esto más adelante).
+
+Ahora podemos ver como hemos usado el binding de propiedad, que es el que hemos usado para pasar el parámetro de entrada, en este caso _game_.
+
+** Este código es de referencia no copiar y pegar en la solución**
+
+El @input en el CardGameComponent
+
+```diff
+export class CardGameComponent {
++  @Input() game!: Game;
+}
+```
+
+En el componente principal lo instanciamos y usamos esa propiedad:
+
+```diff
+<div *ngFor="let game of games">
++  <app-card-game [game]="game"></app-card-game>
+</div>
+```
+
+Ahora viene otro punto de magia este binding cuando lo vamos a usar lo envolvemos entre _corchetes_ y le ponemos el nombre de la propiedad que queremos pasarle, en este caso _game_ ¿Esto por qué? Angular tiene un sistema de property binding, podemos envolver la propiedad entre corchetes o entre parentesis ¿Qué diferencia hay?
+
+- Si la envolvemos entre corchetes, estamos indicando que es una propiedad de un objeto, por ejemplo _game.name_.
+
+- si la envolvemos entre parentesis, estamos indicando que es una propiedad de un elemento del DOM, por ejemplo _input.value_.
+
+https://stackoverflow.com/questions/35944749/what-is-the-difference-between-parentheses-brackets-and-asterisks-in-angular2
+
 Pequeño resumen y comentar que veremos más adelante
 --> Explicar los bindings @input y cuales otro
 --> Explicar la caja envolviendo a game
