@@ -132,9 +132,121 @@ ng generate component card-game
 
 Vamos a fijarnos en lo que se ha generado:
 
-Ficheros: _card-game.component.ts, card-game.component.html, card-game.component.css, card-game.component.spec.ts_
+En la ruta _app/card-game_ se han creado los siguientes fichero:
+
+- _card-game.component.ts_: La lógica del componente.
+- _card-game.component.html_: El HTML del componente.
+- _card-game.component.css_ : Los estilos del componente.
+- _card-game.component.spec.ts_: El fichero de pruebas del componente.
 
 Y en el fichero _app.module.ts_ se ha registrado el componente.
+
+** Ojo este snippet es solo para referencia **
+
+_./src/app/app.module.ts_
+
+```diff
+import { AppComponent } from './app.component';
++ import { CardGameComponent } from './card-game/card-game.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
++    CardGameComponent
+  ],
+  imports: [
+    BrowserModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+```
+
+Vamos a incluir este componente en nuestro _ngFor_, para saber que selector usar (en esto caso _app-card-game_) podemos verlo en el fichero _card-game.component.ts_, en la entrada _selecrtor_:
+
+_./src/card-game/card-game.component.ts_
+
+** Codigo de referencia, no copiar **
+
+```diff
+@Component({
++  selector: 'app-card-game',
+  templateUrl: './card-game.component.html',
+  styleUrls: ['./card-game.component.css']
+})
+export class CardGameComponent {
+```
+
+Nos vamos a nuestro _app.component_ y lo introducimos en el _ngFor_:
+
+_./src/app/app.component.html_
+
+```diff
+<h1>My application</h1>
+<h2>{{ title + "(" + title.length + ")" }})</h2>
+
+<div *ngFor="let game of games">
+   <img src={{game.imageUrl}}  style="max-width: 240px"/>
+   <p>{{game.name}}</p>
+   <p>{{game.getYearsFromRelease()}}</p>
++  <app-card-game></app-card-game>
+</div>
+```
+
+Si ejecutamos podemos ver que ¡¡eyyy!! se instancia el nuevo componente, vamos ahora a pasar el contenido de la ficha al nuevo componente que hemos creado, aquí nos vamos a dar cuenta de que nos falta algo, y es que el componente no tiene ninguna propiedad, para poder pasarle el juego que queremos mostrar.
+
+_./src/app/card-game/card-game.component.html_
+
+```diff
+- <p>card-game works!</p>
++   <img src={{game.imageUrl}}  style="max-width: 240px"/>
++   <p>{{game.name}}</p>
++   <p>{{game.getYearsFromRelease()}}</p>
+```
+
+Así que nos vamos a ir al fichero que define la lógica del componente y le vamos a indicar que aceptamos un parametro de entrada, para ello vamos a usar el decorador _@Input_:
+
+_./src/app/card-game/card-game.component.ts_
+
+```diff
+- import { Component } from '@angular/core';
++ import { Component, Input } from '@angular/core';
++ import { Game } from '../model/game.model';
+
+@Component({
+  selector: 'app-card-game',
+  templateUrl: './card-game.component.html',
+  styleUrls: ['./card-game.component.css']
+})
+export class CardGameComponent {
++  @Input() game!: Game;
+}
+```
+
+> Con el signo de exclamación le estamos diciendo a TypeScript, que si que _game_ no lo he inicializado a null, pero que sabemos lo que estamos haciendo ;) (otra opción habría sido inicializar _game_ a un valor por defecto).
+
+Vamos ahora a por el componente app, y vamos a eliminar el código antiguo y añadir el binding a game para el nuevo componente.
+
+_./src/app/app.component.html_
+
+```diff
+<h1>My application</h1>
+<h2>{{ title + "(" + title.length + ")" }})</h2>
+
+<div *ngFor="let game of games">
+-  <img src="{{ game.imageUrl }}" style="max-width: 240px" />
+-  <p>{{ game.name }}</p>
+-  <p>{{ game.getYearsFromRelease() }}</p>
+-  <app-card-game></app-card-game>
++  <app-card-game [game]="game"></app-card-game>
+</div>
+```
+
+Pequeño resumen y comentar que veremos más adelante
+--> Explicar los bindings @input y cuales otro
+--> Explicar la caja envolviendo a game
+
+Para finalizar estilar un poco el card
 
 # ¿Te apuntas a nuestro máster?
 
