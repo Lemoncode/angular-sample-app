@@ -269,19 +269,170 @@ En el componente principal lo instanciamos y usamos esa propiedad:
 </div>
 ```
 
-Ahora viene otro punto de magia este binding cuando lo vamos a usar lo envolvemos entre _corchetes_ y le ponemos el nombre de la propiedad que queremos pasarle, en este caso _game_ ¿Esto por qué? Angular tiene un sistema de property binding, podemos envolver la propiedad entre corchetes o entre parentesis ¿Qué diferencia hay?
+Ahora viene otro punto de magia este binding cuando lo vamos a usar lo envolvemos entre _corchetes_ y le ponemos el nombre de la propiedad que queremos pasarle, en este caso _game_ ¿Esto por qué? Angular tiene un sistema de property binding, podemos envolver la propiedad entre corchetes o entre paréntesis ¿Qué diferencia hay?
 
-- Si la envolvemos entre corchetes, estamos indicando que es una propiedad de un objeto, por ejemplo _game.name_.
+- Si la envolvemos entre corchetes:
+  - Es un binding en una dirección, desde la fuente de datos (el objeto) al destino (el componente).
+  - Es decir en el caso del ejemplo, estamos indicando que es una propiedad de un objeto, por ejemplo _game.name_.
+- Si la envolvemos entre paréntesis:
+  - Es un binding en una dirección desde el destino (el componente) hacia la fuente de datos (el objeto).
+  - Esto lo podemos usar para leer datos de un _input.value_, o engancharnos a un evento, por ejemplo un botón _(click)="onSave()"_.
+- ¿Y si usamos las dos? [()]
+  - A esto lo llamamos _banana in a box_ y es un binding en dos direcciones, es decir, si cambia el valor en el componente, se actualiza el objeto y viceversa.
+  - Se puede usar en los casos en los que queremos que el valor de un input se actualice en el objeto y viceversa, lo enlazaríamos a la propiedad value.
+  - El binding two way genera mucha discusión y controversia, en escenarios sencillos puede ser una solución más que válida.
 
-- si la envolvemos entre parentesis, estamos indicando que es una propiedad de un elemento del DOM, por ejemplo _input.value_.
+> Más información: https://stackoverflow.com/questions/35944749/what-is-the-difference-between-parentheses-brackets-and-asterisks-in-angular2
 
-https://stackoverflow.com/questions/35944749/what-is-the-difference-between-parentheses-brackets-and-asterisks-in-angular2
+Para finalizar estilar un poco el componente card.
 
-Pequeño resumen y comentar que veremos más adelante
---> Explicar los bindings @input y cuales otro
---> Explicar la caja envolviendo a game
+Añadimos un poco de CSS para:
 
-Para finalizar estilar un poco el card
+- Mostrar la imagen en como fondo.
+- Añadir un borde redondeado.
+- Añadir abajo el título del juego y el precio.
+- Añadir un efecto de hover.
+
+_./src/app/card-game/card-game.component.css_
+
+```css
+.card {
+  margin: 30px auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 40px;
+  box-shadow: 5px 5px 30px 7px rgba(0, 0, 0, 0.25), -5px -5px 30px 7px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: 0.4s;
+}
+
+.card .card_image {
+  width: inherit;
+  height: inherit;
+  border-radius: 40px;
+}
+
+.card .card_image img {
+  width: inherit;
+  height: inherit;
+  border-radius: 40px;
+  object-fit: cover;
+}
+
+.card .card_title {
+  text-align: center;
+  border-radius: 0px 0px 40px 40px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+  margin-top: -80px;
+  height: 40px;
+}
+
+.card:hover {
+  transform: scale(0.9, 0.9);
+  box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0.25), -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
+}
+
+.title-white {
+  color: white;
+}
+
+.title-black {
+  color: black;
+}
+
+@media all and (max-width: 500px) {
+  .card-list {
+    /* On small screens, we are no longer using row direction but column */
+    flex-direction: column;
+  }
+}
+```
+
+Y modificamos el markup para adptar layout y estilo
+
+_./src/app/card-game/card-game.component.html_
+
+```diff
+- <img src="{{ game.imageUrl }}" style="max-width: 240px" />
+-<p>{{ game.name }}</p>
+-<p>{{ game.getYearsFromRelease() }}</p>
+<div class="card">
+  <div class="card_image"> <img [src]="game.imageUrl" /> </div>
+  <div class="card_title title-white">
+    <p>{{ game.name }} ({{ game.getYearsFromRelease() }})</p>
+  </div>
+</div>
+```
+
+En bruto:
+
+```html
+<div class="card">
+  <div class="card_image"><img src="https://i.redd.it/b3esnz5ra34y.jpg" /></div>
+  <div class="card_title title-white">
+    <p>Card Title</p>
+  </div>
+</div>
+```
+
+css
+
+```css
+.card {
+  margin: 30px auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 40px;
+  box-shadow: 5px 5px 30px 7px rgba(0, 0, 0, 0.25), -5px -5px 30px 7px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  transition: 0.4s;
+}
+
+.card .card_image {
+  width: inherit;
+  height: inherit;
+  border-radius: 40px;
+}
+
+.card .card_image img {
+  width: inherit;
+  height: inherit;
+  border-radius: 40px;
+  object-fit: cover;
+}
+
+.card .card_title {
+  text-align: center;
+  border-radius: 0px 0px 40px 40px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+  margin-top: -80px;
+  height: 40px;
+}
+
+.card:hover {
+  transform: scale(0.9, 0.9);
+  box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0.25), -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
+}
+
+.title-white {
+  color: white;
+}
+
+.title-black {
+  color: black;
+}
+
+@media all and (max-width: 500px) {
+  .card-list {
+    /* On small screens, we are no longer using row direction but column */
+    flex-direction: column;
+  }
+}
+```
 
 # ¿Te apuntas a nuestro máster?
 
