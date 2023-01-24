@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   margin: 30px auto;
   width: 300px;
   height: 300px;
@@ -23,22 +24,22 @@
 }
 
 .card .card_title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
   text-align: center;
-  border-radius: 0px 0px 40px 40px;
   font-family: sans-serif;
   font-weight: bold;
   font-size: 24px;
-  margin-top: -80px;
+  top: 80%;
   height: 40px;
-  z-index: 1;
+  left: 50%;
+  width: 90%;
+  border-radius: 10px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
 }
-
-/*
-padding: 25px 20px 25px;
-position: absolute;
-bottom: 0;
-z-index: 1;
-*/
 
 .card:hover {
   transform: scale(0.9, 0.9);
@@ -48,15 +49,4 @@ z-index: 1;
 
 .title-white {
   color: white;
-}
-
-.title-black {
-  color: black;
-}
-
-@media all and (max-width: 500px) {
-  .card-list {
-    /* On small screens, we are no longer using row direction but column */
-    flex-direction: column;
-  }
 }

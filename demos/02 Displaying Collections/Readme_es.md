@@ -297,6 +297,7 @@ _./src/app/card-game/card-game.component.css_
 
 ```css
 .card {
+  position: relative;
   margin: 30px auto;
   width: 300px;
   height: 300px;
@@ -320,13 +321,21 @@ _./src/app/card-game/card-game.component.css_
 }
 
 .card .card_title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
   text-align: center;
-  border-radius: 0px 0px 40px 40px;
   font-family: sans-serif;
   font-weight: bold;
-  font-size: 30px;
-  margin-top: -80px;
+  font-size: 24px;
+  top: 80%;
   height: 40px;
+  left: 50%;
+  width: 90%;
+  border-radius: 10px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .card:hover {
@@ -336,17 +345,6 @@ _./src/app/card-game/card-game.component.css_
 
 .title-white {
   color: white;
-}
-
-.title-black {
-  color: black;
-}
-
-@media all and (max-width: 500px) {
-  .card-list {
-    /* On small screens, we are no longer using row direction but column */
-    flex-direction: column;
-  }
 }
 ```
 
@@ -358,81 +356,33 @@ _./src/app/card-game/card-game.component.html_
 - <img src="{{ game.imageUrl }}" style="max-width: 240px" />
 -<p>{{ game.name }}</p>
 -<p>{{ game.getYearsFromRelease() }}</p>
-<div class="card">
-  <div class="card_image"> <img [src]="game.imageUrl" /> </div>
-  <div class="card_title title-white">
-    <p>{{ game.name }} ({{ game.getYearsFromRelease() }})</p>
-  </div>
-</div>
++ <div class="card">
++  <div class="card_image"><img [src]="game.imageUrl" /></div>
++  <div class="card_title title-white">
++    {{ game.name }} ({{ game.getYearsFromRelease() }})
++  </div>
++ </div>
 ```
 
-En bruto:
+Aunque esto está fuera del estudio de Angular, un breve resumen de lo como está montando este CSS:
 
-```html
-<div class="card">
-  <div class="card_image"><img src="https://i.redd.it/b3esnz5ra34y.jpg" /></div>
-  <div class="card_title title-white">
-    <p>Card Title</p>
-  </div>
-</div>
-```
+- Definimos un contenedor _card_ que será el que contiene la imagen y el título, soBre este contenedor:
 
-css
+  - Le damos una posición relativa para que el título se pueda posicionar sobre la imagen, este truco lo emplearemos para el texto del título, que lo posicionaremos en la parte inferior de la imagen.
+  - Para simplificar trabajamos en pixeles y le damos un tamaño fijo.
+  - Le damos un margen de 30 pixeles para que no aparezca pegado.
+  - Esa caja la queremos con los bordes redondeados y de paso le ponemos un efecto de sombra con box-shadow.
+  - Le ponemos un cursor de mano para indicar que es un elemento interactivo.
+  - Le añadimos una transición para que cuando pasemos el ratón por encima se haga más grande.
 
-```css
-.card {
-  margin: 30px auto;
-  width: 300px;
-  height: 300px;
-  border-radius: 40px;
-  box-shadow: 5px 5px 30px 7px rgba(0, 0, 0, 0.25), -5px -5px 30px 7px rgba(0, 0, 0, 0.22);
-  cursor: pointer;
-  transition: 0.4s;
-}
-
-.card .card_image {
-  width: inherit;
-  height: inherit;
-  border-radius: 40px;
-}
-
-.card .card_image img {
-  width: inherit;
-  height: inherit;
-  border-radius: 40px;
-  object-fit: cover;
-}
-
-.card .card_title {
-  text-align: center;
-  border-radius: 0px 0px 40px 40px;
-  font-family: sans-serif;
-  font-weight: bold;
-  font-size: 30px;
-  margin-top: -80px;
-  height: 40px;
-}
-
-.card:hover {
-  transform: scale(0.9, 0.9);
-  box-shadow: 5px 5px 30px 15px rgba(0, 0, 0, 0.25), -5px -5px 30px 15px rgba(0, 0, 0, 0.22);
-}
-
-.title-white {
-  color: white;
-}
-
-.title-black {
-  color: black;
-}
-
-@media all and (max-width: 500px) {
-  .card-list {
-    /* On small screens, we are no longer using row direction but column */
-    flex-direction: column;
-  }
-}
-```
+- Definimos dentro de es card la imagen de fondo y el título:
+  - Para el div de la imagen le indicamos que heredemos el ancho y alto de su contenedor (así la imagen ocupará todo el espacio disponible del card).
+  - Le indicamos un border radius de 40px como el padre (aquí podríamos habernos planteado usar _inherit_ también)
+  - En la imagen en si lo más destacable es que le indicamos que haga un _object-fit: cover_ para que la imagen se adapte al tamaño de la caja y no se estire.
+- Vamos ahora al título, aquí hacemos varias cosas:
+  - La más importante: queremos que el título aparezca en la parte inferior de la imagen, para ello usamos _position:absolute_ (que tomara como refrencia el card padre que está como relative) y lo posicionamos en la parte inferior del card y lo movemos hacia arriba con _top: 80%_.
+  - Por otro lado para que el div aparezca centrado en la parte inferior del card (al esta en absoluto aparece a la izquierda), lo posicionamos en el centro con _left: 50%_ y lo movemos hacia la izquierda con _transform: translateX(-50%)_.
+  - Y ya lo que hacemos es usar un contenedor Flex para centrar el texto vertical y horizontalmente (jugando con _align-items_ y _justify-content_).
 
 # ¿Te apuntas a nuestro máster?
 
