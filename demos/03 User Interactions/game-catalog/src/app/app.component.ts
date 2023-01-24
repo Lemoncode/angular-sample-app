@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Game } from './model/game.model';
+import { Seller } from './model/seller.model';
 
 @Component({
   selector: 'app-root',
@@ -9,8 +10,10 @@ import { Game } from './model/game.model';
 export class AppComponent {
   title = 'game-catalog';
   games: Game[];
+  showSellerList: boolean;
 
   constructor() {
+    this.showSellerList = false;
     this.games = [
       new Game(
         'Super Mario Bros',
@@ -31,4 +34,8 @@ export class AppComponent {
   }
 
   ngOnInit(): void {}
+
+  onShowSellerList(sellers: Seller[]) {
+    this.showSellerList = true;
+  }
 }

@@ -164,12 +164,129 @@ Y vamos a instanciarlo en el app.component.html
 + <app-seller-list></app-seller-list>
 ```
 
-Vamos a controlar el estado del modal con una variable booleana, en este caso por dar una solución simple lo gestionremos desde el componente padre, esto nos servirá para aprender como funciona la directiva _ngIf_, en un proyecto real usarías un componente modal de una librería que ya traería encapsulada esta implementación.
+Vamos a controlar el estado del modal con una variable booleana, en este caso por dar una solución simple lo gestionaremos desde el componente padre, esto nos servirá para aprender como funciona la directiva _ngIf_, en un proyecto real usarías un componente modal de una librería que ya traería encapsulada esta implementación.
 
-_./src_
+_./src/app/app.component.ts_
 
 ```diff
+export class AppComponent {
+  title = 'game-catalog';
+  games: Game[];
++ showSellerList: boolean;
+
+  constructor() {
++  this.showSellerList = false;
+    this.games = [
 ```
+
+_./src/app/app.component.html_
+
+```diff
+<div *ngFor="let game of games">
+  <app-card-game [game]="game"></app-card-game>
+</div>
+
+- <app-seller-list></app-seller-list>
++ <app-seller-list *ngif={showSellerList}></app-seller-list>
+```
+
+Si te fijas ya no aparece el modal, ¿Por qué? Porque el valor de _showSellerList_ es _false_.
+
+Vamos a añadir la siguiente funcionalidad: si pinchas en el título del juego, se muestra el diálogo modal, para ello vamos seguir estos pasos:
+
+- En card game vamos a exponer un evento click.
+- En el componente padre vamos a escuchar ese evento y cambiar el valor de _showSellerList_ a _true_ cuando se ejecute.
+- Dentro del cardgame vamos a añadir un evento click que emita el evento _showSellerList_ cuando pinchemos en el título.
+- Lo asociamos al título.
+
+Definimos el evento en cardGame:
+
+- Es un evento de salida (un callback).
+- Es de tipo EventEmitter.
+- El tipo de dato que va a emitir es un array de Sellers (ya tenemos el dato, otra opción podría haber sido pasarle el nombre del juego)
+
+_./src/app/card-game/card-game.component.ts_
+
+```diff
+- import { Component, Input } from '@angular/core';
++ import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Game } from '../model/game.model';
++ import { Seller } from '../model/seller.model';
+
+@Component({
+  selector: 'app-card-game',
+  templateUrl: './card-game.component.html',
+  styleUrls: ['./card-game.component.css'],
+})
+export class CardGameComponent {
+  @Input() game!: Game;
++ @Output() showSellerList = new EventEmitter< Seller[]>();
+}
+```
+
+Vamos a definir un handler para el click en el titulo:
+
+_./src/app/card-game/card-game.component.ts_
+
+```diff
+export class CardGameComponent {
+  @Input() game!: Game;
+  @Output() showSellerList = new EventEmitter< Seller[]>();
++
++ onTitleClick() {
++   this.showSellerList.emit(this.game.sellers);
++ }
+}
+```
+
+Y en el HTML del cardGame vamos a definir el evento click:
+
+_./src/app/card-game/card-game.component.html_
+
+```diff
+-  <div class="card_title title-white">
++  <div class="card_title title-white" (click)="onTitleClick()">
+    {{ game.name }} ({{ game.getYearsFromRelease() }})
+  </div>
+```
+
+Y vamos ahora a definir un callback para el evento click que pondremos en el título del juego:
+
+```diff
+-  <div class="card_title title-white">
++  <div class="card_title title-white" (click)="onTitleClick()">
+    {{ game.name }} ({{ game.getYearsFromRelease() }})
+  </div>
+```
+
+Ya estamos cerca, vamos ahora recoger el evento de titulo clicado en el componente padre y cambiar el valor de _showSellerList_ a _true_.
+
+_./src/app/app.component.ts_
+
+```diff
++ import { Seller } from './model/seller.model';
+// (...)
+
+  ngOnInit(): void {}
+
++ onShowSellerList(sellers: Seller[]) {
++   this.showSellerList = true;
++ }
+}
+```
+
+Y lo enganchamos en el HTML:
+
+_./src/app/app.component.html_
+
+```diff
+<div *ngFor="let game of games">
+-  <app-card-game [game]="game"></app-card-game>
++  <app-card-game [game]="game" (showSellerList)="onShowSellerList($event)"></app-card-game>
+</div>
+```
+
+Vamos a probarlo...
 
 # Material
 

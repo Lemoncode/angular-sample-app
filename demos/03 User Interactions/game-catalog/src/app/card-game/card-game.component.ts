@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Game } from '../model/game.model';
+import { Seller } from '../model/seller.model';
 
 @Component({
   selector: 'app-card-game',
@@ -8,4 +9,9 @@ import { Game } from '../model/game.model';
 })
 export class CardGameComponent {
   @Input() game!: Game;
+  @Output() showSellerList = new EventEmitter<Seller[]>();
+
+  onTitleClick() {
+    this.showSellerList.emit(this.game.sellers);
+  }
 }
