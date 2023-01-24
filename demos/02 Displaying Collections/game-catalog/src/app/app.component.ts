@@ -8,20 +8,27 @@ import { Game } from './model/game.model';
 })
 export class AppComponent {
   title = 'game-catalog';
-  private games: Game[];
-  game: Game = new Game("");
+  games: Game[];
 
   constructor() {
-    console.log('** Constructor called **');
     this.games = [
-      new Game('Super Mario Bros', '13 September 1985'),
-      new Game('Legend of Zelda', '21 February 1986'),
-      new Game('Sonic', '26 June 1981'),
+      new Game(
+        'Super Mario Bros',
+        '13 September 1985',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/super-mario.webp'
+      ),
+      new Game(
+        'Legend of Zelda',
+        '21 February 1986',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/legend-zelda.webp'
+      ),
+      new Game(
+        'Sonic',
+        '26 June 1981',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/sonic-frontiers.webp'
+      ),
     ];
   }
 
-  ngOnInit(): void {
-    console.log('** ngOnInit called **');
-    this.game = this.games[0];
-  }
+  ngOnInit(): void {}
 }
