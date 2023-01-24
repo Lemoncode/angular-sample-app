@@ -187,7 +187,7 @@ _./src/app/app.component.html_
 </div>
 
 - <app-seller-list></app-seller-list>
-+ <app-seller-list *ngif={showSellerList}></app-seller-list>
++ <app-seller-list *ngIf={showSellerList}></app-seller-list>
 ```
 
 Si te fijas ya no aparece el modal, ¿Por qué? Porque el valor de _showSellerList_ es _false_.
@@ -288,6 +288,88 @@ _./src/app/app.component.html_
 
 Vamos a probarlo...
 
+Ey ! pinchamos en el título y se muestra el diálogo modal (ojo si hacemos scroll más abajo veremos que no se muestra el modal, tenemos que hacer scroll, actualizaremos esto más adelante).
+
+Vamos ahora añadir la funcionalidad para cerrar el modal, en este caso si pinchamos en el bóton de aspa emitiremos un evento desde el componente hijo y lo recogeremos en el componente padre.
+
+Vamos a añadir un evento de salida en el componente hijo:
+
+_./src/app/seller-list/seller-list.component.ts_
+
+```diff
+- import { Component } from '@angular/core';
++ import { Component, EventEmitter, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-seller-list',
+  templateUrl: './seller-list.component.html',
+  styleUrls: ['./seller-list.component.css']
+})
+export class SellerListComponent {
++ @Output() close = new EventEmitter();
+}
+```
+
+Vamos a implementar el handler para el botón y emitir el evento:
+
+_./src/app/seller-list/seller-list.component.ts_
+
+```diff
+export class SellerListComponent {
+  @Output() close = new EventEmitter();
+
++ onCloseClick() {
++   this.close.emit();
++ }
+}
+```
+
+Y en el HTML
+
+_./src/app/seller-list/seller-list.component.html_
+
+```diff
+<div class="overlay"></div>
+<div class="modal">
+-  <button class="modal-close-btn">✖️</button>
++  <button class="modal-close-btn" (click)="onCloseClick()">✖️</button>
+  <h2>Lista de vendedores</h2>
+</div>
+```
+
+- Y en el componente padre vamos a implementar el handler para el evento de cierre del modal:
+
+_./src/app/app.component.ts_
+
+```diff
+  ngOnInit(): void {}
+
+  onShowSellerList(sellers: Seller[]) {
+    this.showSellerList = true;
+  }
+
++  onCloseSellerList() {
++    this.showSellerList = false;
++  }
+}
+```
+
+Y vamos a engancharlo en el HTML:
+
+_./src/app/app.component.html_
+
+```diff
+- <app-seller-list *ngIf="showSellerList"></app-seller-list>
++ <app-seller-list *ngIf="showSellerList" (close)="onCloseSellerList()"></app-seller-list>
+```
+
+Vamos a probarlo :)
+
+-> Queda
+
+- Arreglar que salga siempre arriba
+- mostrar lista en el modal
+
 # Material
 
 Este ejemplo de modal está basado en el siguiente codepen: https://codepen.io/becolomochi/pen/zpEebg
@@ -304,3 +386,7 @@ También puedes apuntarte a nuestro Bootcamp de Back End [Bootcamp Backend](http
 
 Y si tienes ganas de meterte una zambullida en el mundo _devops_
 apuntate nuestro [Bootcamp devops online Lemoncode](https://lemoncode.net/bootcamp-devops#bootcamp-devops/inicio)
+
+```
+
+```

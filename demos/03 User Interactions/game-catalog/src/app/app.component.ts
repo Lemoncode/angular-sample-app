@@ -38,4 +38,8 @@ export class AppComponent {
   onShowSellerList(sellers: Seller[]) {
     this.showSellerList = true;
   }
+
+  onCloseSellerList() {
+    this.showSellerList = false;
+  }
 }

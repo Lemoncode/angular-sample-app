@@ -8,4 +8,4 @@
   ></app-card-game>
 </div>
 
-<app-seller-list *ngif="{showSellerList}"></app-seller-list>
+<app-seller-list *ngIf="showSellerList" (close)="onCloseSellerList()"></app-seller-list>
