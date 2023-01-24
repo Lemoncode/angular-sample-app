@@ -1,9 +1,6 @@
-<h1>
-  {{title}}
-</h1>
+<h1>My application</h1>
+<h2>{{ title + "(" + title.length + ")" }})</h2>
 
-<div class="container">
-  <div *ngFor="let game of games">
-    <app-game-summary [game]="game"></app-game-summary>
-  </div>
+<div *ngFor="let game of games">
+  <app-card-game [game]="game"></app-card-game>
 </div>

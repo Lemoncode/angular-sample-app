@@ -1,34 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { Game } from './models/game.model';
+import { Component } from '@angular/core';
+import { Game } from './model/game.model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit {
-  title = 'Displaying Collection Demo';
+export class AppComponent {
+  title = 'game-catalog';
   games: Game[];
 
-  constructor() {}
-
-  ngOnInit(): void {
+  constructor() {
     this.games = [
       new Game(
         'Super Mario Bros',
         '13 September 1985',
-        'http://cdn02.nintendo-europe.com/media/images/10_share_images/games_15/virtual_console_nintendo_3ds_7/SI_3DSVC_SuperMarioBros_image1280w.jpg',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/super-mario.webp'
       ),
       new Game(
         'Legend of Zelda',
         '21 February 1986',
-        'http://www.hobbyconsolas.com/sites/hobbyconsolas.com/public/styles/main_element/public/media/image/2013/06/227201-analisis-legend-zelda-oracle-ages/seasons.jpg?itok=A8pOGd_f',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/legend-zelda.webp'
       ),
       new Game(
         'Sonic',
         '26 June 1981',
-        'https://i.ytimg.com/vi/dfFd7Bu6xnc/hqdefault.jpg',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/sonic-frontiers.webp'
       ),
     ];
   }
+
+  ngOnInit(): void {}
 }
