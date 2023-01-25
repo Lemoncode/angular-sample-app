@@ -1,16 +1,16 @@
-import { ISeller } from './seller.model';
+import { Seller } from './seller.model';
 
 export class Game {
   name: string;
   dateRelease: Date;
   imageUrl?: string;
-  sellers?: ISeller[];
+  sellers?: Seller[];
 
   constructor(
-    name?: string,
-    dateRelease?: string,
+    name: string,
+    dateRelease: string = '',
     imageUrl?: string,
-    sellers?: ISeller[],
+    sellers?: Seller[]
   ) {
     this.name = name;
     this.dateRelease = new Date(dateRelease);
@@ -23,7 +23,6 @@ export class Game {
     return this.convertToYears(new Date(milliseconds));
   }
 
-  private convertToYears = (date: Date): number => (
-    Math.abs(date.getUTCFullYear() - 1970)
-  );
+  private convertToYears = (date: Date): number =>
+    Math.abs(date.getUTCFullYear() - 1970);
 }

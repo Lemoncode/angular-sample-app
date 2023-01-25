@@ -1,23 +1,20 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
-import { GameSummaryComponent } from './game/game-summary.component';
-import { GameStockService } from './services/game-stock.service';
-import { GameSellersComponent } from './game/game-sellers.component';
+import { CardGameComponent } from './card-game/card-game.component';
+import { SellerListComponent } from './seller-list/seller-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    GameSummaryComponent,
-    GameSellersComponent
+    CardGameComponent,
+    SellerListComponent
   ],
   imports: [
     BrowserModule
   ],
-  providers: [
-    GameStockService
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
