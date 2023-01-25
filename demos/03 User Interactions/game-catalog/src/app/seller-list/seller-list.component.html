@@ -1,0 +1,17 @@
+<div class="overlay"></div>
+<div class="modal">
+  <button class="modal-close-btn" (click)="onCloseClick($event)">✖️</button>
+  <h2>Lista de vendedores</h2>
+  <div class="seller-grid-container">
+    <div class="seller-grid-header">Nombre</div>
+    <div class="seller-grid-header">Cantidad</div>
+    <div class="seller-grid-header">Precio</div>
+    <div class="seller-grid-header">Disponible</div>
+    <ng-container *ngFor="let seller of sellers" class="seller-grid-item">
+      <span>{{ seller.name }}</span>
+      <span>{{ seller.amount }}</span>
+      <span>{{ seller.price }}</span>
+      <span>{{ seller.isAvailable ? "✅" : "✖️" }}</span>
+    </ng-container>
+  </div>
+</div>
