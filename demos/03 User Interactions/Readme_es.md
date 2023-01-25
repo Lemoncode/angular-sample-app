@@ -89,7 +89,6 @@ _./src/app/seller-list.component.css_
 ```css
 /** Modal */
 .modal {
-  pointer-events: none;
   position: absolute;
   top: 10px;
   left: 0;
@@ -111,7 +110,6 @@ _./src/app/seller-list.component.css_
 
 /** Overlay */
 .overlay {
-  pointer-events: none;
   opacity: 0.7;
   position: fixed;
   top: 0;
