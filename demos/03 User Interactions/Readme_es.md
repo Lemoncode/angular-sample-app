@@ -158,7 +158,7 @@ _./src/app/seller-list.component.css_
   top: 10px;
   left: 0;
   right: 0;
-  max-width: 300px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 30px;
   background: #fff;
@@ -491,13 +491,94 @@ _./src/app/seller-list/seller-list.component.html_
 </div>
 ```
 
-- Ejecutamos y todo bien, vamos ahora a darle un poco de estilo a esa lista (aquí lo mismo... recomendar que uséis una librería de componentes de terceros, pero de cara a aprender lo haremos desde cero).
+- Ejecutamos y todo bien, vamos ahora a darle un poco de estilo a esa lista (aquí lo mismo... os recomendamos que en un proyecto real uséis una librería de componentes de terceros, pero de cara a aprender lo haremos desde cero).
+
+A nivel de estilado:
+
+- Para crear una lista vamos a usar el estándar CSS-Grid.
+- Vamos a crear definir 4 columnas, le vamos a darle tamaño fijo a todas las columnas menos a la columna nombre ahí le diremos que coja todo el espacio disponibles (será la única que tenga definido FR), si más adelante quisiéramos dejar esto más fino podríamos usar mediaqueries.
+- Vamos a definir una clase para la cabecera de la columna con un color de fondo.
+
+_./src/app/seller-list/seller-list.component.css_
+
+```css
+.seller-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 80px 60px 90px;
+  grid-template-rows: auto;
+  padding: 10px;
+}
+
+.seller-grid-header {
+  background-color: #f2f2f2;
+}
+```
 
 _./src/app/seller-list/seller-list.component.html_
 
----
+```diff
+<div class="overlay"></div>
+<div class="modal">
+  <button class="modal-close-btn" (click)="onCloseClick($event)">✖️</button>
+  <h2>Lista de vendedores</h2>
+-  <ul>
+-    <li *ngFor="let seller of sellers">{{ seller.name }}</li>
+-  </ul>
++  <div class="seller-grid-container">
++    <div class="seller-grid-header">Nombre</div>
++    <div class="seller-grid-header">Cantidad</div>
++    <div class="seller-grid-header">Precio</div>
++    <div class="seller-grid-header">Disponible</div>
++    <div *ngFor="let seller of sellers" class="seller-grid-item">
++      <span>{{ seller.name }}</span>
++      <span>{{ seller.amount }}</span>
++      <span>{{ seller.price }}</span>
++      <span>{{ seller.isAvailable ? "✅" : "✖️" }}</span>
++    </div>
++  </div>
+</div>
+```
 
-- mostrar lista en el modal
+Bueno parece que esta, PEEEEROOOO... ¿Qué ha pasado aquí? Al poner un Div en el ng for nos cargamos el grid de CSS : ¿Cómo podemos hacer para eliminar ese div? Para ello en vez de usar un _div_ vamos a usar un _ng-container_ que es un elemento que no se renderiza en el DOM.
+
+```diff
+  <div class="seller-grid-container">
+    <div class="seller-grid-header">Nombre</div>
+    <div class="seller-grid-header">Cantidad</div>
+    <div class="seller-grid-header">Precio</div>
+    <div class="seller-grid-header">Disponible</div>
+-    <div *ngFor="let seller of sellers" class="seller-grid-item">
++    <ngContainer *ngFor="let seller of sellers" class="seller-grid-item">
+      <span>{{ seller.name }}</span>
+      <span>{{ seller.amount }}</span>
+      <span>{{ seller.price }}</span>
+      <span>{{ seller.isAvailable ? "✅" : "✖️" }}</span>
+-    </div>
++   </ngContainer>
+  </div>
+```
+
+- Ahora si que se muestra en cada columna.
+
+- Vamos a terminar tocando un poco de CSS, si te fijas, si hacemos scroll, el dialogo modal se sigue mostrando arriba del todo, para ello cambiamos el position a fixed.
+
+_./src/app/seller-list/seller-list.component.css_
+
+```diff
+.modal {
+-  position: absolute;
++  position: fixed;
+  top: 10px;
+  left: 0;
+  right: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+```
 
 # Material
 
