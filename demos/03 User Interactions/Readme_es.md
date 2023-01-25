@@ -63,6 +63,71 @@ export class Game {
 }
 ```
 
+- Vamos a modificar nuestra semilla de datos mock:
+
+_./src/app/app.component.ts_
+
+```diff
+    this.games = [
+      new Game(
+        'Super Mario Bros',
+        '13 September 1985',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/super-mario.webp',
++        [
++          {
++            id: 1,
++            name: 'Old shop',
++            price: 95,
++            amount: 2,
++            isAvailable: true,
++          },
++          {
++            id: 2,
++            name: 'New shop',
++            price: 115,
++            amount: 1,
++            isAvailable: true,
++          },
++          {
++            id: 3,
++            name: 'Regular shop',
++            price: 135,
++            amount: 0,
++            isAvailable: false,
++          }
++        ]
+      ),
+      new Game(
+        'Legend of Zelda',
+        '21 February 1986',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/legend-zelda.webp',
++        [
++          {
++            id: 3,
++            name: 'Old shop',
++            price: 125,
++            amount: 0,
++            isAvailable: false,
++          },
++          {
++            id: 4,
++            name: 'New shop',
++            price: 145,
++            amount: 1,
++            isAvailable: true,
++          },
++        ]
+      ),
+      new Game(
+        'Sonic',
+        '26 June 1981',
+        'https://raw.githubusercontent.com/Lemoncode/angular-sample-app/master/media/sonic-frontiers.webp',
+        []
+      ),
+    ];
+  }
+```
+
 - Ahora vamos a crear un componente que muestre un modal y la lista de sellers.
 
 > De momento lo vamos a crear todo en uno, más adelante aprenderamos a
@@ -248,15 +313,6 @@ _./src/app/card-game/card-game.component.html_
   </div>
 ```
 
-Y vamos ahora a definir un callback para el evento click que pondremos en el título del juego:
-
-```diff
--  <div class="card_title title-white">
-+  <div class="card_title title-white" (click)="onTitleClick()">
-    {{ game.name }} ({{ game.getYearsFromRelease() }})
-  </div>
-```
-
 Ya estamos cerca, vamos ahora recoger el evento de titulo clicado en el componente padre y cambiar el valor de _showSellerList_ a _true_.
 
 _./src/app/app.component.ts_
@@ -361,11 +417,86 @@ _./src/app/app.component.html_
 + <app-seller-list *ngIf="showSellerList" (close)="onCloseSellerList()"></app-seller-list>
 ```
 
-Vamos a probarlo :)
+- Nos centramos ahora en mostrar la lista de sellers en el modal.
 
--> Queda
+- Primero tenemos que pasar la lista de sellers al componente modal:
 
-- Arreglar que salga siempre arriba
+Primero añadimos el parametro al modal
+
+_./src/app/seller-list/seller-list.component.ts_
+
+```diff
+- import { Component, EventEmitter, Output } from '@angular/core';
++ import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-seller-list',
+  templateUrl: './seller-list.component.html',
+  styleUrls: ['./seller-list.component.css'],
+})
+export class SellerListComponent {
+  @Output() close = new EventEmitter();
++ @Input() sellers: Seller[];
+
++  constructor() {
++    this.sellers = [];
++  }
+
+
+  onCloseClick(event?: MouseEvent) {
+```
+
+- Y a nivel de app vamos a meter la lista de sellers del objeto en el que se pinche en una variable miembro:
+
+_./src/app/app.component.ts_
+
+```diff
+export class AppComponent {
+  title = 'game-catalog';
+  games: Game[];
+  showSellerList: boolean;
++ sellers: Seller[];
+
+  constructor() {
+    this.showSellerList = false;
++   this.sellers = [];
+  }
+
+  ngOnInit(): void {}
+
+  onShowSellerList(sellers: Seller[]) {
++   this.sellers = sellers;
+    this.showSellerList = true;
+```
+
+_./src/app/app.component.html_
+
+```diff
+- <app-seller-list *ngIf="showSellerList" (close)="onCloseSellerList()"></app-seller-list>
++ <app-seller-list *ngIf="showSellerList" (close)="onCloseSellerList()" [sellers]="sellers"></app-seller-list>
+```
+
+Para probar rápido que este llegando la lista de sellers vamos a pintarla en el modal:
+
+_./src/app/seller-list/seller-list.component.html_
+
+```diff
+<div class="overlay"></div>
+<div class="modal">
+  <button class="modal-close-btn" (click)="onCloseClick($event)">✖️</button>
+  <h2>Lista de vendedores</h2>
++  <ul>
++    <li *ngFor="let seller of sellers">{{ seller.name }}</li>
++  </ul>
+</div>
+```
+
+- Ejecutamos y todo bien, vamos ahora a darle un poco de estilo a esa lista (aquí lo mismo... recomendar que uséis una librería de componentes de terceros, pero de cara a aprender lo haremos desde cero).
+
+_./src/app/seller-list/seller-list.component.html_
+
+---
+
 - mostrar lista en el modal
 
 # Material

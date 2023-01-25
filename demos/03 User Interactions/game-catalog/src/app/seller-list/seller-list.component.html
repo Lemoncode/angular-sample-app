@@ -2,4 +2,7 @@
 <div class="modal">
   <button class="modal-close-btn" (click)="onCloseClick($event)">✖️</button>
   <h2>Lista de vendedores</h2>
+  <ul>
+    <li *ngFor="let seller of sellers">{{ seller.name }}</li>
+  </ul>
 </div>
